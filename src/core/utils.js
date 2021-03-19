@@ -40,5 +40,5 @@ export function center(element, { width, height },
  * @param {Number} max 
  */
 export function random(min, max) {
-  return Math.random() * (max - min) + min;
+  return Math.round(Math.random() * (max - min) + min);
 }
