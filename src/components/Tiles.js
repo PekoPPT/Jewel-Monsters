@@ -11,6 +11,8 @@ export default class Tiles extends Container {
     super();
 
     this.sortableChildren = true;
+    this.tileHeight = 100;
+    this.tileWidth = 100;
     this.playGround = [[], [], [], [], [], []];
     this.init();
   }
@@ -69,10 +71,13 @@ export default class Tiles extends Container {
     tile.name = String(row) + col;
     tile.zIndex = 100;
     tile.x = xPosition;
-    tile.y = yPosition;
+    tile.y = -100;
     tile.interactive = true;
     tile.buttonMode = true;
     tile.anchor.set(0.5);
+
+    gsap.to(tile, { y: row * this.tileHeight + (this.tileHeight / 2) - 60 });
+
 
     tile
       // events for drag start
