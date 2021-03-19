@@ -1,15 +1,33 @@
 import { Sprite } from 'pixi.js';
 import Scene from './Scene';
-import gsap from 'gsap';
+import { gsap, Sine } from 'gsap';
 import Footer from '../components/Footer';
+import Character from '../components/Character';
+import Moves from '../components/Moves';
+import ProgressBar from '../components/ProgressBar';
+import Tiles from '../components/Tiles';
 
 export default class Play extends Scene {
-  async onCreated() {
+  constructor() {
+    super();
+    this.movesToPlay = 20;
 
-    const footer = new Footer();
-    footer.x = - window.innerWidth / 2;
-    footer.y = window.innerHeight / 2 - footer.height;
-    this.addChild(footer);
+  }
+  async onCreated() {
+    await this.addMonsters();
+    await this.addMovesPanel();
+    await this.addProgressBar();
+    this.addTiles();
+
+    // let i = 20;
+    // let score = 20;
+    // setInterval(() => {
+    //   // this.movesPanel.changeMoves(i);
+    //   this.progressBar.changeScore(score);
+    //   this.progressBar.set(score);
+    //   i -= 1;
+    //   score += 400;
+    // }, 100);
   }
 
   /**
@@ -21,5 +39,68 @@ export default class Play extends Scene {
    */
   onResize(width, height) { // eslint-disable-line no-unused-vars
 
+  }
+
+  addTiles() {
+    const that = this;
+    const tiles = new Tiles();
+    this.tiles = tiles;
+    this.tiles.x = - 275;
+    this.tiles.y = - 225;
+    this.tiles.on('move_made', function moveMade() {
+      console.log("move made");
+      that.movesToPlay -= 1;
+      that.movesPanel.changeMoves(that.movesToPlay);
+      that.tiles._checkForIdenticalElements();
+    });
+    this.tiles.on('calculations_ready', function calculations_ready(scoreToChange, lastElementOfMatch) {
+      // console.log(lastElementOfMatch.x);
+      that.progressBar.changeScore(scoreToChange);
+      var textSample = new PIXI.Text(scoreToChange + 'XP', { font: '35px Snippet', fill: 'white', align: 'left' });
+      that.addChild(textSample);
+      // textSample.position.y = row * 100;
+      gsap.to(textSample, { pixi: { scale: 2, autoAlpha: 0 }, duration: 3 }).then(() => {
+        textSample.destroy();
+      });
+    });
+    this.addChild(this.tiles);
+  }
+
+  async addMonsters() {
+    const monsterBig = new Character();
+    const monsterSmall = new Character();
+
+    monsterBig.x = -630;
+    monsterBig.y = -110;
+    gsap.to(monsterBig, {
+      pixi: { y: -90 }, yoyo: true, repeat: -1, duration: 3, ease: Sine.easeInOut
+    });
+
+    monsterSmall.x = 340;
+    monsterSmall.y = -305;
+    monsterSmall.scale.set(0.4);
+    gsap.to(monsterSmall, {
+      pixi: { y: -280 }, yoyo: true, repeat: -1, duration: 6, ease: Sine.easeInOut
+    });
+
+
+    this.addChild(monsterBig);
+    this.addChild(monsterSmall);
+  }
+
+  async addMovesPanel() {
+    this.movesPanel = new Moves();
+    this.movesPanel.y = - window.innerHeight / 2 + 58;
+    this.addChild(this.movesPanel);
+  }
+
+  async addProgressBar() {
+    const progressBar = new ProgressBar();
+    this.progressBar = progressBar;
+    this.progressBar.on("game_won", function gameWon() {
+      console.log("GameWon");
+
+    })
+    this.addChild(this.progressBar);
   }
 }
