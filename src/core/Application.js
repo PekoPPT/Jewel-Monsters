@@ -4,6 +4,7 @@ import Game from '../Game';
 import { Viewport } from 'pixi-viewport';
 import { center } from './utils';
 import Assets from './AssetManager';
+import Fire from '../components/Fire';
 
 /**
  * Game entry point. Holds the game's viewport and responsive background
@@ -12,9 +13,10 @@ import Assets from './AssetManager';
 export default class GameApplication extends Application {
   constructor() {
     super(config.view);
-
     this.config = config;
     Assets.renderer = this.renderer;
+    this._applicationWidth = window.innerWidth;
+    this._applicationHeight = window.innerHeight;
 
     this.setupViewport();
     this.initGame();
@@ -27,6 +29,7 @@ export default class GameApplication extends Application {
    */
   async initGame() {
     await this.createBackground();
+    await this.addFire();
 
     this.game = new Game({
       background: this.background,
@@ -78,8 +81,12 @@ export default class GameApplication extends Application {
      * @param  {Number} height        The updated viewport width
      */
   onResize(width = this.config.view.width, height = this.config.view.height) {
+
+    // console.log(width);
+    // console.log(height);
     this.background.x = width / 2;
     this.background.y = height / 2;
+    // this.background.width = width;
     this.game.onResize(width, height);
 
     if (this.config.view.centerOnResize) {
@@ -94,18 +101,44 @@ export default class GameApplication extends Application {
    *
    */
   async createBackground() {
-    const images = { background: Assets.images.background };
+    const images = {
+      background: Assets.images.bg,
+    };
 
     await Assets.load({ images });
     await Assets.prepareImages(images);
 
-    const sprite = Sprite.from('background');
+    const background = Sprite.from('background');
 
-    this.background = sprite;
+    this.background = background;
     this.background.anchor.set(0.5);
     this.background.name = 'background';
 
-    this.stage.addChildAt(sprite);
+    this.stage.addChildAt(background);
+  }
+
+  async addFire() {
+    const images = {
+      fire: Assets.images.fire,
+    };
+
+    await Assets.load({ images });
+    await Assets.prepareImages(images);
+
+    const fireLeft = new Fire();
+    const fireRight = new Fire();
+
+    this.fireLeft = fireLeft;
+    this.fireLeft.anchor.set(0.5);
+    this.fireLeft.x = window.innerWidth / 2 + 725;
+    this.fireLeft.y = this._applicationHeight - this._applicationHeight * 0.4;
+
+    this.fireRight = fireRight;
+    this.fireRight.x = window.innerWidth / 2 - 680;
+    this.fireRight.y = this._applicationHeight - this._applicationHeight * 0.4;
+
+    this.stage.addChild(fireLeft);
+    this.stage.addChild(fireRight);
   }
 }
 
