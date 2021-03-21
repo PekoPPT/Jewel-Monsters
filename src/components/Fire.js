@@ -11,7 +11,6 @@ export default class Fire extends Sprite {
 
   init() {
     this._fire = new Sprite.from('fire');
-    // this._fire.y = 41;
     this._fire.anchor.set(0.5);
     this.addChild(this._fire);
   }

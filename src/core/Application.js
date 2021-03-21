@@ -1,4 +1,4 @@
-import { Sprite, Application } from 'pixi.js';
+import { Sprite, Application, Container } from 'pixi.js';
 import config from '../config';
 import Game from '../Game';
 import { Viewport } from 'pixi-viewport';
@@ -82,8 +82,6 @@ export default class GameApplication extends Application {
      */
   onResize(width = this.config.view.width, height = this.config.view.height) {
 
-    console.log(width);
-    console.log(height);
     this.background.x = width / 2;
     this.background.y = height / 2;
     // this.background.width = width;
@@ -103,7 +101,7 @@ export default class GameApplication extends Application {
    * @param {Number} height
    * @memberof GameApplication
    */
-  scaleGameBasedOnResolution(width, height) {
+  scaleGameBasedOnResolution(width = this.config.view.width, height = this.config.view.height) {
     const widthRatio = width / this.background.width;
     const heightRatio = height / this.background.height;
 
@@ -111,6 +109,7 @@ export default class GameApplication extends Application {
 
     this.viewport.scale.set(scaleFactor);
     this.background.scale.set(scaleFactor);
+    this.fireContainer.scale.set(scaleFactor);
   }
 
   /**
@@ -135,7 +134,7 @@ export default class GameApplication extends Application {
     this.stage.addChildAt(background);
   }
 
-  async addFire() {
+  async addFire(width = this.config.view.width, height = this.config.view.height) {
     const images = {
       fire: Assets.images.fire,
     };
@@ -143,20 +142,26 @@ export default class GameApplication extends Application {
     await Assets.load({ images });
     await Assets.prepareImages(images);
 
+    const fireContainer = new Container();
+    this.fireContainer = fireContainer;
+    this.fireContainer.x = width / 2;
+    this.fireContainer.y = height / 2;
+
     const fireLeft = new Fire();
     const fireRight = new Fire();
 
     this.fireLeft = fireLeft;
-    this.fireLeft.anchor.set(0.5);
-    this.fireLeft.x = window.innerWidth / 2 + 725;
-    this.fireLeft.y = this._applicationHeight - this._applicationHeight * 0.4;
+    this.fireLeft.x = 634;
+    this.fireLeft.y = -26;
 
     this.fireRight = fireRight;
-    this.fireRight.x = window.innerWidth / 2 - 680;
-    this.fireRight.y = this._applicationHeight - this._applicationHeight * 0.4;
+    this.fireRight.x = -747;
+    this.fireRight.y = -29;
 
-    this.stage.addChild(fireLeft);
-    this.stage.addChild(fireRight);
+    this.fireContainer.addChild(this.fireLeft);
+    this.fireContainer.addChild(this.fireRight);
+
+    this.stage.addChild(this.fireContainer);
   }
 }
 

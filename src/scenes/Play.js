@@ -17,7 +17,7 @@ export default class Play extends Scene {
     await this.addMonsters();
     await this.addMovesPanel();
     await this.addProgressBar();
-    this.addTiles();
+    await this.addTiles();
 
     // let i = 20;
     // let score = 20;
@@ -41,12 +41,12 @@ export default class Play extends Scene {
 
   }
 
-  addTiles() {
+  async addTiles() {
     const that = this;
     const tiles = new Tiles();
     this.tiles = tiles;
-    this.tiles.x = - 275;
-    this.tiles.y = - 225;
+    this.tiles.x = - 280;
+    this.tiles.y = - 211;
     this.tiles.on('move_made', function moveMade() {
       console.log("move made");
       that.movesToPlay -= 1;
@@ -70,13 +70,13 @@ export default class Play extends Scene {
     const monsterBig = new Character();
     const monsterSmall = new Character();
 
-    monsterBig.x = -630;
-    monsterBig.y = -110;
+    monsterBig.x = -623;
+    monsterBig.y = -111;
     gsap.to(monsterBig, {
       pixi: { y: -90 }, yoyo: true, repeat: -1, duration: 3, ease: Sine.easeInOut
     });
 
-    monsterSmall.x = 340;
+    monsterSmall.x = 345;
     monsterSmall.y = -305;
     monsterSmall.scale.set(0.4);
     gsap.to(monsterSmall, {
@@ -90,7 +90,9 @@ export default class Play extends Scene {
 
   async addMovesPanel() {
     this.movesPanel = new Moves();
-    this.movesPanel.y = - window.innerHeight / 2 + 58;
+    this.movesPanel.x = - 2;
+    this.movesPanel.y = - 480;
+
     this.addChild(this.movesPanel);
   }
 
