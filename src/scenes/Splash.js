@@ -64,7 +64,8 @@ export default class Splash extends Scene {
       skullTile: Assets.images['symbol-6'],
     };
     const sounds = {
-
+      stoneHit: Assets.sounds['sounds/stone-hitting-big-stone'],
+      scrapingStone: Assets.sounds['sounds/scraping-stone']
     };
 
     return super.preload({ images, sounds }).then(() => {
