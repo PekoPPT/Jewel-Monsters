@@ -82,8 +82,8 @@ export default class GameApplication extends Application {
      */
   onResize(width = this.config.view.width, height = this.config.view.height) {
 
-    // console.log(width);
-    // console.log(height);
+    console.log(width);
+    console.log(height);
     this.background.x = width / 2;
     this.background.y = height / 2;
     // this.background.width = width;
@@ -93,6 +93,24 @@ export default class GameApplication extends Application {
       this.viewport.x = width / 2;
       this.viewport.y = height / 2;
     }
+    this.scaleGameBasedOnResolution(width, height);
+  }
+
+  /**
+   * Resize the viewport & background based on the screen width.
+   *
+   * @param {Number} width
+   * @param {Number} height
+   * @memberof GameApplication
+   */
+  scaleGameBasedOnResolution(width, height) {
+    const widthRatio = width / this.background.width;
+    const heightRatio = height / this.background.height;
+
+    const scaleFactor = widthRatio > heightRatio ? widthRatio : heightRatio;
+
+    this.viewport.scale.set(scaleFactor);
+    this.background.scale.set(scaleFactor);
   }
 
   /**
