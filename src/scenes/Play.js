@@ -1,4 +1,4 @@
-import { Sprite } from 'pixi.js';
+import { Sprite, Text } from 'pixi.js';
 import Scene from './Scene';
 import { gsap, Sine } from 'gsap';
 import Footer from '../components/Footer';
@@ -6,6 +6,7 @@ import Character from '../components/Character';
 import Moves from '../components/Moves';
 import ProgressBar from '../components/ProgressBar';
 import Tiles from '../components/Tiles';
+import XP from '../components/XP';
 
 export default class Play extends Scene {
   constructor() {
@@ -53,14 +54,21 @@ export default class Play extends Scene {
       that.movesPanel.changeMoves(that.movesToPlay);
       that.tiles._checkForIdenticalElements();
     });
-    this.tiles.on('calculations_ready', function calculations_ready(scoreToChange, lastElementOfMatch) {
-      // console.log(lastElementOfMatch.x);
+
+    // Executed when all operations on the playground are completed.
+    // Updates the score in the progress bar
+    // Adds 
+    this.tiles.on('calculations_ready', function calculations_ready(scoreToChange, xpPositionX, xpPositionY) {
       that.progressBar.changeScore(scoreToChange);
-      var textSample = new PIXI.Text(scoreToChange + 'XP', { font: '35px Snippet', fill: 'white', align: 'left' });
+      // const textSample = new Text(scoreToChange + 'XP', { font: '35px Snippet', fill: 'white', align: 'left' });
+      const textSample = new XP(scoreToChange);
       that.addChild(textSample);
-      // textSample.position.y = row * 100;
+
+      textSample.position.x = xpPositionX * 100 - 320;
+      textSample.position.y = xpPositionY * 100 - 220;
+
       gsap.to(textSample, { pixi: { scale: 2, autoAlpha: 0 }, duration: 3 }).then(() => {
-        textSample.destroy();
+        that.removeChild(textSample);
       });
     });
     this.addChild(this.tiles);

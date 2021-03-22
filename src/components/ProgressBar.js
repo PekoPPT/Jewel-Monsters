@@ -3,6 +3,7 @@ import Symbol from "./Symbol";
 import gsap from "gsap";
 import PixiPlugin from "gsap/PixiPlugin";
 import Tooltip from "./Tooltip";
+import XP from "./XP";
 
 gsap.registerPlugin(PixiPlugin);
 export default class ProgressBar extends Container {
@@ -97,71 +98,20 @@ export default class ProgressBar extends Container {
    * @memberof ProgressBar
    */
   _addCurrenScoreText() {
-    const currentScoreContainer = new Container();
-    currentScoreContainer.x = -60;
-    currentScoreContainer.y = 360;
+    const currentScoreContainer = new XP();
+    this._currentScoreContainer = currentScoreContainer;
 
-    const thousandsScoreDigit = new Symbol(5, 0.35, '');
-    this.thousandsScoreDigit = thousandsScoreDigit;
+    this._currentScoreContainer.x = -60;
+    this._currentScoreContainer.y = 360;
 
-    const hundredsScoreDigit = new Symbol(0, 0.35, '');
-    this.hundredsScoreDigit = hundredsScoreDigit;
-    this.hundredsScoreDigit.x = 18;
-
-    const decimalsScoreDigit = new Symbol(0, 0.35, '');
-    this.decimalsScoreDigit = decimalsScoreDigit;
-    this.decimalsScoreDigit.x = 36;
-
-    const singlesScoreDigit = new Symbol(0, 0.35, '');
-    this.singlesScoreDigit = singlesScoreDigit;
-    this.singlesScoreDigit.x = 54;
-
-    const xSymbolScoreBar = new Symbol('x', 0.24, '');
-    this.xSymbolScoreBar = xSymbolScoreBar;
-    this.xSymbolScoreBar.x = 76;
-    this.xSymbolScoreBar.y = 9;
-
-    const pSymbolScoreBar = new Symbol('p', 0.24, '');
-    this.pSymbolScoreBar = pSymbolScoreBar;
-    this.pSymbolScoreBar.x = 90;
-    this.pSymbolScoreBar.y = 9;
-
-    currentScoreContainer.addChild(this.thousandsScoreDigit);
-    currentScoreContainer.addChild(this.hundredsScoreDigit);
-    currentScoreContainer.addChild(this.decimalsScoreDigit);
-    currentScoreContainer.addChild(this.singlesScoreDigit);
-    currentScoreContainer.addChild(this.xSymbolScoreBar);
-    currentScoreContainer.addChild(this.pSymbolScoreBar);
-    this.addChild(currentScoreContainer);
+    this.addChild(this._currentScoreContainer);
   }
 
 
   changeScore(value) {
-    console.log(value);
     this._currentScore += value;
-    const currentScoreElements = this._currentScore.toString().split('');
+    this._currentScoreContainer.defineXP(this._currentScore);
 
-    if (currentScoreElements.length === 4) {
-      this.thousandsScoreDigit.setSymbol(currentScoreElements[0]);
-      this.hundredsScoreDigit.setSymbol(currentScoreElements[1]);
-      this.decimalsScoreDigit.setSymbol(currentScoreElements[2]);
-      this.singlesScoreDigit.setSymbol(currentScoreElements[3]);
-    } else if (currentScoreElements.length === 3) {
-      this.thousandsScoreDigit.setSymbol('0');
-      this.hundredsScoreDigit.setSymbol(currentScoreElements[0]);
-      this.decimalsScoreDigit.setSymbol(currentScoreElements[1]);
-      this.singlesScoreDigit.setSymbol(currentScoreElements[2]);
-    } else if (currentScoreElements.length === 2) {
-      this.thousandsScoreDigit.setSymbol('0');
-      this.hundredsScoreDigit.setSymbol('0');
-      this.decimalsScoreDigit.setSymbol(currentScoreElements[0]);
-      this.singlesScoreDigit.setSymbol(currentScoreElements[1]);
-    } else if (currentScoreElements.length === 1) {
-      this.thousandsScoreDigit.setSymbol('0');
-      this.hundredsScoreDigit.setSymbol('0');
-      this.decimalsScoreDigit.setSymbol('0');
-      this.singlesScoreDigit.setSymbol(currentScoreElements[0]);
-    }
     this.set();
     if (this._currentScore >= 500) {
       this.emit(ProgressBar.events.GAME_WON);
