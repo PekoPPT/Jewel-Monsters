@@ -107,6 +107,7 @@ export default class GameApplication extends Application {
 
     const scaleFactor = widthRatio > heightRatio ? widthRatio : heightRatio;
 
+    // console.log("Scale factor=", scaleFactor);
     this.viewport.scale.set(scaleFactor);
     this.background.scale.set(scaleFactor);
     this.fireContainer.scale.set(scaleFactor);
@@ -137,6 +138,7 @@ export default class GameApplication extends Application {
   async addFire(width = this.config.view.width, height = this.config.view.height) {
     const images = {
       fire: Assets.images.fire,
+      fireGlow: Assets.images['fire-glow']
     };
 
     await Assets.load({ images });
@@ -144,19 +146,19 @@ export default class GameApplication extends Application {
 
     const fireContainer = new Container();
     this.fireContainer = fireContainer;
-    this.fireContainer.x = width / 2;
-    this.fireContainer.y = height / 2;
+    this.fireContainer.x = width / 2 + width * 0.048;
+    this.fireContainer.y = height / 2 + height * 0.13;
 
     const fireLeft = new Fire();
     const fireRight = new Fire();
 
     this.fireLeft = fireLeft;
-    this.fireLeft.x = 634;
+    this.fireLeft.x = -749;
     this.fireLeft.y = -26;
 
     this.fireRight = fireRight;
-    this.fireRight.x = -747;
-    this.fireRight.y = -29;
+    this.fireRight.x = 631;
+    this.fireRight.y = -26;
 
     this.fireContainer.addChild(this.fireLeft);
     this.fireContainer.addChild(this.fireRight);
