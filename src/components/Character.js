@@ -2,16 +2,16 @@ import { Container, Sprite } from "pixi.js";
 import Assets from '../core/AssetManager';
 
 export default class Character extends Container {
-  constructor() {
+  constructor(openedEyes = false) {
     super();
-    this.init();
+    this.init(openedEyes);
   }
 
-  async init() {
-    await this._createBody();
+  async init(openedEyes) {
+    await this._createBody(openedEyes);
   }
 
-  async _createBody() {
+  async _createBody(openedEyes) {
     const images = {
       'monster-body': Assets.images['char-body'],
       'monster-eye': Assets.images['char-eye'],
@@ -38,7 +38,9 @@ export default class Character extends Container {
 
     this.addChild(monsterBody);
     this.addChild(monsterEye);
-    this.addChild(monsterEyeLidTop);
-    this.addChild(monsterEyeLidBottom);
+    if (!openedEyes) {
+      this.addChild(monsterEyeLidTop);
+      this.addChild(monsterEyeLidBottom);
+    }
   }
 }
