@@ -14,6 +14,7 @@ export default class Character extends Container {
   async _createBody(openedEyes) {
     const images = {
       'monster-body': Assets.images['char-body'],
+      'monster-body-smile': Assets.images['char-body-smile'],
       'monster-eye': Assets.images['char-eye'],
       'monster-eye-lid-top': Assets.images['char-lid-top'],
       'monster-eye-lid-bottom': Assets.images['char-lid-bottom'],
@@ -21,8 +22,14 @@ export default class Character extends Container {
 
     await Assets.load({ images });
     await Assets.prepareImages(images);
+    let monsterBody;
 
-    const monsterBody = new Sprite.from('monster-body');
+    if (!openedEyes) {
+      monsterBody = new Sprite.from('monster-body');
+    } else {
+      monsterBody = new Sprite.from('monster-body-smile');
+    }
+
     const monsterEye = new Sprite.from('monster-eye');
     const monsterEyeLidTop = new Sprite.from('monster-eye-lid-top');
     const monsterEyeLidBottom = new Sprite.from('monster-eye-lid-bottom');
