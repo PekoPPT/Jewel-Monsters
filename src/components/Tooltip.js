@@ -53,11 +53,17 @@ export default class Tooltip extends Container {
     this.pSymbol.x = 331;
     this.pSymbol.y = 416;
 
-    this.addChild(thousandsTooltipDigit);
-    this.addChild(hundredTooltipDigit);
-    this.addChild(decimalTooltipDigit);
-    this.addChild(singleTooltipDigit);
-    this.addChild(xSymbol);
-    this.addChild(pSymbol);
+    this.toolTipNumber = new Container();
+
+    this.toolTipNumber.addChild(thousandsTooltipDigit);
+    this.toolTipNumber.addChild(hundredTooltipDigit);
+    this.toolTipNumber.addChild(decimalTooltipDigit);
+    this.toolTipNumber.addChild(singleTooltipDigit);
+    this.toolTipNumber.addChild(xSymbol);
+    this.toolTipNumber.addChild(pSymbol);
+
+    this.toolTipNumber.x = 5;
+    this.toolTipNumber.y = 1;
+    this.addChild(this.toolTipNumber);
   }
 }

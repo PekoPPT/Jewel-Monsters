@@ -18,6 +18,8 @@ export default class ProgressBar extends Container {
 
   init() {
     this.toolTip = new Tooltip();
+    this.toolTip.x = 10;
+    this.toolTip.y = 3;
     this._addScoreBase();
     this._addCurrenScoreText();
     this._createBar();
@@ -102,8 +104,8 @@ export default class ProgressBar extends Container {
     this._currentScoreContainer = currentScoreContainer;
 
     this._currentScoreContainer.x = -60;
-    this._currentScoreContainer.y = 360;
-
+    this._currentScoreContainer.y = 363;
+    this._currentScoreContainer.scale.set(0.92);
     this.addChild(this._currentScoreContainer);
   }
 
@@ -113,7 +115,7 @@ export default class ProgressBar extends Container {
     this._currentScoreContainer.defineXP(this._currentScore);
 
     this.set();
-    if (this._currentScore >= 500) {
+    if (this._currentScore >= 5000) {
       this.emit(ProgressBar.events.GAME_WON);
     }
   }
