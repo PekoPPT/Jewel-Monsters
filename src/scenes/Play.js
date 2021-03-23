@@ -1,7 +1,6 @@
-import { Sprite, Text } from 'pixi.js';
+import { Graphics, Sprite, Text, filters } from 'pixi.js';
 import Scene from './Scene';
 import { gsap, Sine } from 'gsap';
-import Footer from '../components/Footer';
 import Character from '../components/Character';
 import Moves from '../components/Moves';
 import ProgressBar from '../components/ProgressBar';
@@ -12,6 +11,8 @@ export default class Play extends Scene {
   constructor() {
     super();
     this.movesToPlay = 20;
+    this.winScreenVisible = false;
+    this.loseScreenVisible = false;
 
   }
   async onCreated() {
@@ -19,16 +20,6 @@ export default class Play extends Scene {
     await this.addMovesPanel();
     await this.addProgressBar();
     await this.addTiles();
-
-    // let i = 20;
-    // let score = 20;
-    // setInterval(() => {
-    //   // this.movesPanel.changeMoves(i);
-    //   this.progressBar.changeScore(score);
-    //   this.progressBar.set(score);
-    //   i -= 1;
-    //   score += 400;
-    // }, 100);
   }
 
   /**
@@ -51,8 +42,10 @@ export default class Play extends Scene {
     this.tiles.on('move_made', function moveMade() {
       console.log("move made");
       that.movesToPlay -= 1;
+      that.showLoseScreen();
       that.movesPanel.changeMoves(that.movesToPlay);
       that.tiles._checkForIdenticalElements();
+
     });
 
     // Executed when all operations on the playground are completed.
@@ -66,6 +59,7 @@ export default class Play extends Scene {
 
       textSample.position.x = xpPositionX * 100 - 320;
       textSample.position.y = xpPositionY * 100 - 220;
+      textSample.name = 'xpGained';
 
       gsap.to(textSample, { pixi: { scale: 2, autoAlpha: 0 }, duration: 3 }).then(() => {
         that.removeChild(textSample);
@@ -76,24 +70,27 @@ export default class Play extends Scene {
 
   async addMonsters() {
     const monsterBig = new Character();
-    const monsterSmall = new Character();
+    this.monsterBig = monsterBig;
 
-    monsterBig.x = -623;
-    monsterBig.y = -111;
-    gsap.to(monsterBig, {
+    const monsterSmall = new Character();
+    this.monsterSmall = monsterSmall;
+
+    this.monsterBig.x = -623;
+    this.monsterBig.y = -111;
+    gsap.to(this.monsterBig, {
       pixi: { y: -90 }, yoyo: true, repeat: -1, duration: 3, ease: Sine.easeInOut
     });
 
-    monsterSmall.x = 345;
-    monsterSmall.y = -305;
-    monsterSmall.scale.set(0.4);
-    gsap.to(monsterSmall, {
+    this.monsterSmall.x = 345;
+    this.monsterSmall.y = -305;
+    this.monsterSmall.scale.set(0.4);
+    gsap.to(this.monsterSmall, {
       pixi: { y: -280 }, yoyo: true, repeat: -1, duration: 6, ease: Sine.easeInOut
     });
 
 
-    this.addChild(monsterBig);
-    this.addChild(monsterSmall);
+    this.addChild(this.monsterBig);
+    this.addChild(this.monsterSmall);
   }
 
   async addMovesPanel() {
@@ -105,12 +102,177 @@ export default class Play extends Scene {
   }
 
   async addProgressBar() {
+    const that = this;
     const progressBar = new ProgressBar();
     this.progressBar = progressBar;
     this.progressBar.on("game_won", function gameWon() {
-      console.log("GameWon");
-
-    })
+      if (this.parent.winScreenVisible === false) {
+        that.showWinScreen();
+      }
+    });
     this.addChild(this.progressBar);
   }
+
+  async showWinScreen() {
+    this.winScreenVisible = true;
+    this.hidePlayGround();
+
+    await this.addXpIconToWinScreen('xpLeft', - 387, - 271, 0.45, -0.5);
+    await this.addXpIconToWinScreen('xpTop', 148, - 501, 0.5, 0.45);
+    await this.addXpIconToWinScreen('xpRight', 381, - 223, 1, 0.69);
+
+    const winScreenMonsterLeft = new Character(true);
+    this.winScreenMonsterLeft = winScreenMonsterLeft;
+    this.winScreenMonsterLeft.x = -308;
+    this.winScreenMonsterLeft.y = -353;
+    this.winScreenMonsterLeft.scale.set(0.7);
+    gsap.to(this.winScreenMonsterLeft, {
+      pixi: { y: -360 }, yoyo: true, repeat: -1, duration: 3, ease: Sine.easeInOut
+    });
+
+    const winScreenMonsterCenter = new Character(true);
+    this.winScreenMonsterCenter = winScreenMonsterCenter;
+    this.winScreenMonsterCenter.x = -110;
+    this.winScreenMonsterCenter.y = -492;
+    this.winScreenMonsterCenter.scale.set(0.44);
+    gsap.to(this.winScreenMonsterCenter, {
+      pixi: { y: -485 }, yoyo: true, repeat: -1, duration: 2, ease: Sine.easeInOut
+    });
+
+    const winScreenMonsterRight = new Character(true);
+    this.winScreenMonsterRight = winScreenMonsterRight;
+    this.winScreenMonsterRight.x = 40;
+    this.winScreenMonsterRight.y = -431;
+    this.winScreenMonsterRight.scale.set(1);
+    gsap.to(this.winScreenMonsterRight, {
+      pixi: { y: -420 }, yoyo: true, repeat: -1, duration: 4, ease: Sine.easeInOut
+    });
+
+    this.addChild(this.winScreenMonsterLeft);
+    this.addChild(this.winScreenMonsterCenter);
+    this.addChild(this.winScreenMonsterRight);
+    await this.addLevelPassedLabel();
+    await this.addPressSpaceButton();
+
+  }
+
+  async showLoseScreen() {
+    this.loseScreenVisible = true;
+    this.hidePlayGround();
+    this.addLoseLabel();
+    this.addPressSpaceButton();
+  }
+
+  async hideLoseScreen() {
+    this.removeChild(this.restartBtn);
+    this.removeChild(this.loseLabel);
+    document.removeEventListener('keypress', function () { });
+    this.loseScreenVisible = false;
+  }
+
+  async hidePlayGround() {
+    gsap.to(this.tiles, { pixi: { alpha: 0 } });
+    gsap.to(this.movesPanel, { pixi: { alpha: 0 } });
+    gsap.to(this.monsterBig, { pixi: { alpha: 0 } });
+    gsap.to(this.monsterSmall, { pixi: { alpha: 0 } });
+    await gsap.to(this.progressBar, { pixi: { alpha: 0 } });
+    this.removeChild(this.tiles);
+    this.removeChild(this.movesPanel);
+    this.removeChild(this.progressBar);
+    this.removeChild(this.monsterBig);
+    this.removeChild(this.monsterSmall);
+  }
+
+  async hideWinScreen() {
+    gsap.to(this.winScreenMonsterLeft, { pixi: { alpha: 0 } });
+    gsap.to(this.winScreenMonsterCenter, { pixi: { alpha: 0 } });
+    gsap.to(this.winScreenMonsterRight, { pixi: { alpha: 0 } });
+    gsap.to(this.winLabel, { pixi: { alpha: 0 } });
+    gsap.to(this.restartBtn, { pixi: { alpha: 0 } });
+    gsap.to(this.getChildByName('xpLeft'), { pixi: { alpha: 0 } });
+    gsap.to(this.getChildByName('xpTop'), { pixi: { alpha: 0 } });
+    gsap.to(this.getChildByName('xpRight'), { pixi: { alpha: 0 } });
+
+    this.removeChild(this.winScreenMonsterLeft);
+    this.removeChild(this.winScreenMonsterCenter);
+    this.removeChild(this.winScreenMonsterRight);
+    this.removeChild(this.winLabel);
+    this.removeChild(this.restartBtn);
+    document.removeEventListener('keydown', function () { });
+    this.removeChild(this.getChildByName('xpLeft'));
+    this.removeChild(this.getChildByName('xpTop'));
+    this.removeChild(this.getChildByName('xpRight'));
+    this.winScreenVisible = false;
+
+  }
+
+  async addLevelPassedLabel() {
+    const winLabel = new Sprite.from('labelPassed');
+    this.winLabel = winLabel;
+    this.winLabel.anchor.set(0.5);
+    this.winLabel.x = -7;
+    this.winLabel.y = - 70;
+    this.winLabel.scale = 0;
+    gsap.to(this.winLabel, { pixi: { scale: 1 } });
+
+    this.addChild(this.winLabel);
+  }
+
+  async addLoseLabel() {
+    const loseLabel = new Sprite.from('labelFailed');
+    this.loseLabel = loseLabel;
+    this.loseLabel.anchor.set(0.5);
+    this.loseLabel.x = -7;
+    this.loseLabel.y = - 70;
+    this.loseLabel.scale = 0;
+    gsap.to(this.loseLabel, { pixi: { scale: 1 } });
+
+    this.addChild(this.loseLabel);
+  }
+
+  async addXpIconToWinScreen(elementName, positionX, positionY, scale, rotation) {
+    const xp = new Sprite.from('xp');
+    this.xp = xp;
+    this.xp.anchor.set(0.5);
+    this.xp.name = elementName;
+    this.xp.x = positionX;
+    this.xp.y = positionY;
+    this.xp.scale.set(scale);
+    this.xp.rotation = rotation;
+    this.addChild(this.xp);
+  }
+
+  async addPressSpaceButton() {
+    const that = this;
+    const restartBtn = new Sprite.from('playAgain');
+    this.restartBtn = restartBtn;
+    this.restartBtn.x = -16;
+    this.restartBtn.y = 217;
+    this.restartBtn.interactive = true;
+    this.restartBtn.buttonMode = true;
+    this.restartBtn.anchor.set(0.5);
+
+    this.restartBtn
+      .on('mousedown', function mouseDown() {
+        that.restartGame();
+      })
+      .on('touchstart', function touchStart() {
+        that.restartGame();
+      });
+
+    document.addEventListener('keydown', function touchStart(key) {
+      if (key.code === "Space" && that.winScreenVisible || key.code === "Space" && that.loseScreenVisible) {
+        that.restartGame();
+      }
+    });
+
+    this.addChild(this.restartBtn);
+  }
+
+  restartGame() {
+    this.hideWinScreen();
+    this.hideLoseScreen();
+    this.onCreated();
+  }
+
 }
