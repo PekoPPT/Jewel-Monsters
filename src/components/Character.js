@@ -11,6 +11,14 @@ export default class Character extends Container {
     await this._createBody(openedEyes);
   }
 
+  /**
+   * Initizlizes Monster's body elements and assembles the final appearance
+   *
+   * @param {Boolean} openedEyes - Defines if the eyes of the Monster will be opened or not - If the eye lids will be displayed
+   * @method
+   * @private
+   * @memberof Character
+   */
   async _createBody(openedEyes) {
     const images = {
       'monster-body': Assets.images['char-body'],

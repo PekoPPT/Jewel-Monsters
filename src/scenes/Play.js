@@ -16,10 +16,10 @@ export default class Play extends Scene {
 
   }
   async onCreated() {
-    await this.addMonsters();
-    await this.addMovesPanel();
-    await this.addProgressBar();
-    await this.addTiles();
+    await this._addMonsters();
+    await this._addMovesPanel();
+    await this._addProgressBar();
+    await this._addTiles();
   }
 
   /**
@@ -33,19 +33,24 @@ export default class Play extends Scene {
 
   }
 
-  async addTiles() {
+  /**
+   * Defines tiles board and initializes all tiles 
+   * 
+   * @method
+   * @private
+   * @memberof Play
+   */
+  async _addTiles() {
     const that = this;
     const tiles = new Tiles();
     this.tiles = tiles;
     this.tiles.x = - 280;
     this.tiles.y = - 211;
     this.tiles.on('move_made', function moveMade() {
-      console.log("move made");
       that.movesToPlay -= 1;
-      that.showLoseScreen();
+      that._showLoseScreen();
       that.movesPanel.changeMoves(that.movesToPlay);
       that.tiles._checkForIdenticalElements();
-
     });
 
     // Executed when all operations on the playground are completed.
@@ -53,7 +58,6 @@ export default class Play extends Scene {
     // Adds 
     this.tiles.on('calculations_ready', function calculations_ready(scoreToChange, xpPositionX, xpPositionY) {
       that.progressBar.changeScore(scoreToChange);
-      // const textSample = new Text(scoreToChange + 'XP', { font: '35px Snippet', fill: 'white', align: 'left' });
       const textSample = new XP(scoreToChange);
       that.addChild(textSample);
 
@@ -68,7 +72,14 @@ export default class Play extends Scene {
     this.addChild(this.tiles);
   }
 
-  async addMonsters() {
+  /**
+   * Initializes the monsters that appear next to the playground
+   * 
+   * @method
+   * @private
+   * @memberof Play
+   */
+  async _addMonsters() {
     const monsterBig = new Character();
     this.monsterBig = monsterBig;
 
@@ -88,12 +99,18 @@ export default class Play extends Scene {
       pixi: { y: -280 }, yoyo: true, repeat: -1, duration: 6, ease: Sine.easeInOut
     });
 
-
     this.addChild(this.monsterBig);
     this.addChild(this.monsterSmall);
   }
 
-  async addMovesPanel() {
+  /**
+   *Initizlies the "Moves" panel that appears above the tiles board
+
+   * @method
+   * @private
+   * @memberof Play
+   */
+  async _addMovesPanel() {
     this.movesPanel = new Moves();
     this.movesPanel.x = - 2;
     this.movesPanel.y = - 480;
@@ -101,19 +118,32 @@ export default class Play extends Scene {
     this.addChild(this.movesPanel);
   }
 
-  async addProgressBar() {
+  /**
+   *Initizlies the Progressbar, the current points the targeted points in the tile
+   * 
+   * @method
+   * @private
+   * @memberof Play
+   */
+  async _addProgressBar() {
     const that = this;
     const progressBar = new ProgressBar();
     this.progressBar = progressBar;
-    this.progressBar.on("game_won", function gameWon() {
+    this.progressBar.on('game_won', function gameWon() {
       if (this.parent.winScreenVisible === false) {
-        that.showWinScreen();
+        that._showWinScreen();
       }
     });
     this.addChild(this.progressBar);
   }
 
-  async showWinScreen() {
+  /**
+   * Shows the win screen with all its items for the end of the game
+   * @method
+   * @private
+   * @memberof Play
+   */
+  async _showWinScreen() {
     this.winScreenVisible = true;
     this.hidePlayGround();
 
@@ -151,26 +181,47 @@ export default class Play extends Scene {
     this.addChild(this.winScreenMonsterLeft);
     this.addChild(this.winScreenMonsterCenter);
     this.addChild(this.winScreenMonsterRight);
-    await this.addLevelPassedLabel();
-    await this.addPressSpaceButton();
+    await this._addLevelPassedLabel();
+    await this._addPressSpaceButton();
 
   }
 
-  async showLoseScreen() {
+  /**
+   * Shows the "Lose" screen of the game
+   * 
+   * @method
+   * @private
+   * @memberof Play
+   */
+  async _showLoseScreen() {
     this.loseScreenVisible = true;
-    this.hidePlayGround();
-    this.addLoseLabel();
-    this.addPressSpaceButton();
+    this._hidePlayGround();
+    this._addLoseLabel();
+    this._addPressSpaceButton();
   }
 
-  async hideLoseScreen() {
+  /**
+   * Hides the "Lose" screen from the game
+   *
+   * @method
+   * @private
+   * @memberof Play
+   */
+  async _hideLoseScreen() {
     this.removeChild(this.restartBtn);
     this.removeChild(this.loseLabel);
     document.removeEventListener('keypress', function () { });
     this.loseScreenVisible = false;
   }
 
-  async hidePlayGround() {
+  /**
+   * Hides the playground of the game
+   * 
+   * @method
+   * @private
+   * @memberof Play
+   */
+  async _hidePlayGround() {
     gsap.to(this.tiles, { pixi: { alpha: 0 } });
     gsap.to(this.movesPanel, { pixi: { alpha: 0 } });
     gsap.to(this.monsterBig, { pixi: { alpha: 0 } });
@@ -183,7 +234,14 @@ export default class Play extends Scene {
     this.removeChild(this.monsterSmall);
   }
 
-  async hideWinScreen() {
+  /**
+   * Hides the win screen of the game
+   * 
+   * @method
+   * @private
+   * @memberof Play
+   */
+  async _hideWinScreen() {
     gsap.to(this.winScreenMonsterLeft, { pixi: { alpha: 0 } });
     gsap.to(this.winScreenMonsterCenter, { pixi: { alpha: 0 } });
     gsap.to(this.winScreenMonsterRight, { pixi: { alpha: 0 } });
@@ -206,7 +264,14 @@ export default class Play extends Scene {
 
   }
 
-  async addLevelPassedLabel() {
+  /**
+   * Adds the "Game WIN" label
+   * 
+   * @method
+   * @private
+   * @memberof Play
+   */
+  async _addLevelPassedLabel() {
     const winLabel = new Sprite.from('labelPassed');
     this.winLabel = winLabel;
     this.winLabel.anchor.set(0.5);
@@ -218,7 +283,14 @@ export default class Play extends Scene {
     this.addChild(this.winLabel);
   }
 
-  async addLoseLabel() {
+  /**
+   * Adds the "Game Over" label
+   * 
+   * @method
+   * @private
+   * @memberof Play
+   */
+  async _addLoseLabel() {
     const loseLabel = new Sprite.from('labelFailed');
     this.loseLabel = loseLabel;
     this.loseLabel.anchor.set(0.5);
@@ -230,7 +302,20 @@ export default class Play extends Scene {
     this.addChild(this.loseLabel);
   }
 
-  async addXpIconToWinScreen(elementName, positionX, positionY, scale, rotation) {
+  /**
+   * Adds XP icon to the game. Used in the "Win" screen
+   * 
+   * @method
+   * @private
+   *
+   * @param {String} elementName
+   * @param {Number} positionX
+   * @param {Number} positionY
+   * @param {Number} scale
+   * @param {Number} rotation
+   * @memberof Play
+   */
+  async _addXpIconToWinScreen(elementName, positionX, positionY, scale, rotation) {
     const xp = new Sprite.from('xp');
     this.xp = xp;
     this.xp.anchor.set(0.5);
@@ -242,7 +327,14 @@ export default class Play extends Scene {
     this.addChild(this.xp);
   }
 
-  async addPressSpaceButton() {
+  /**
+   * Adds restart button to the game
+   * 
+   * @method
+   * @private
+   * @memberof Play
+   */
+  async _addPressSpaceButton() {
     const that = this;
     const restartBtn = new Sprite.from('playAgain');
     this.restartBtn = restartBtn;
@@ -261,7 +353,7 @@ export default class Play extends Scene {
       });
 
     document.addEventListener('keydown', function touchStart(key) {
-      if (key.code === "Space" && that.winScreenVisible || key.code === "Space" && that.loseScreenVisible) {
+      if (key.code === 'Space' && that.winScreenVisible || key.code === 'Space' && that.loseScreenVisible) {
         that.restartGame();
       }
     });
@@ -269,9 +361,15 @@ export default class Play extends Scene {
     this.addChild(this.restartBtn);
   }
 
+  /**
+   * Restarts the game
+   * 
+   * @methods
+   * @memberof Play
+   */
   restartGame() {
-    this.hideWinScreen();
-    this.hideLoseScreen();
+    this._hideWinScreen();
+    this._hideLoseScreen();
     this.onCreated();
   }
 

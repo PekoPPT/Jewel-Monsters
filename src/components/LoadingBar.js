@@ -1,6 +1,6 @@
 import Assets from '../core/AssetManager';
-import { Container, Sprite, Graphics, Text, Rectangle, Texture, CanvasRenderer, autoDetectRenderer, RenderTexture } from 'pixi.js';
-import { gsap, TimelineLite, TweenLite, TweenMax, Linear, Timeline } from 'gsap/gsap-core';
+import { Container, Sprite, Graphics } from 'pixi.js';
+import { gsap, Timeline } from 'gsap/gsap-core';
 import Character from '../components/Character';
 
 import PixiPlugin from 'gsap/PixiPlugin';
@@ -10,7 +10,7 @@ gsap.registerPlugin(PixiPlugin, MotionPathPlugin);
 
 export default class LoadingBar extends Container {
 
-  constructor({ label, max = 100, value = 0, width = 500 } = {}) {
+  constructor({ max = 100, value = 0, width = 500 } = {}) {
     super();
 
     this._max = max;
@@ -21,12 +21,19 @@ export default class LoadingBar extends Container {
     this._bar = null;
     this._badge = null;
     this._rad = Math.PI / 180;
-    this._createBackground().then(() => {
+    this.init().then(() => {
       this.set({ value });
     });
 
   }
 
+  /**
+   * Sets the value of the _value parameter
+   * 
+   * @method
+   * @param {Number} { value } - The percentage value of the loading progress
+   * @memberof LoadingBar
+   */
   set({ value }) {
     this._value = value;
     if (this._tl !== undefined) {
@@ -44,38 +51,21 @@ export default class LoadingBar extends Container {
 
   }
 
-  /**
-   * @readonly
-   * @memberof ProgressBar
-   * @returns {PIXI.Graphics}
-   */
-  get background() {
-    return this._background;
-  }
 
   /**
-   * Returns the bar that displays the value of the progressbar parameters
-   *
-   * @readonly
-   * @memberof ProgressBar
+   * Initizlies the Loading bar and the mosnter inside it
+   * 
+   * @method
+   * @memberof LoadingBar
    */
-  get bar() {
-    return this._bar;
-  }
-
-  /**
-   * @private
-   */
-  async _createBackground() {
+  async init() {
 
     const graphicsLeftCircle = new Graphics();
     this._graphicsLeftCircle = graphicsLeftCircle;
 
-
     this._graphicsLeftCircle.beginFill(0x2698bc);
     this._graphicsLeftCircle.arc(0, 0, 200, 90 * this._rad, 270 * this._rad);
     this._graphicsLeftCircle.angle = 180;
-
 
     const graphicsRightCircle = new Graphics();
     this._graphicsRightCircle = graphicsRightCircle;
@@ -123,36 +113,28 @@ export default class LoadingBar extends Container {
     this._graphicsRightCircle.mask = this._loadingBarMaskRight;
 
     this._loadingBarGlowStatic = loadingBarGlowStatic;
-    this._loadingBarGlowStatic.name = "staticGlow";
+    this._loadingBarGlowStatic.name = 'staticGlow';
     this._loadingBarGlowStatic.anchor.set(0.5);
     this._loadingBarGlowStatic.y = 160;
     this._loadingBarGlowStatic.alpha = 0.7;
 
     this._loadingBarGlowMoving = loadingBarGlowDynamic;
-    this._loadingBarGlowStatic.name = "movingGlow";
+    this._loadingBarGlowStatic.name = 'movingGlow';
     this._loadingBarGlowMoving.anchor.set(0.5);
     this._loadingBarGlowMoving.x = 160;
-    // this._loadingBarGlowMoving.alpha = 0.7;
     this._loadingBarGlowMoving.scale.set(0.3);
-
 
     const tl = new Timeline();
     this._tl = tl;
     this._tl.to(this._loadingBarGlowMoving, {
       duration: 1,
-
-      // ease: "power1.inOut",
       motionPath: {
         path: [{ x: 0, y: 160 }, { x: -160, y: 0 }, { x: 0, y: -160 }, { x: 160, y: 0 }],
-        type: "cubic",
+        type: 'cubic',
         autoRotate: true,
         alignOrigin: [0.5, 0.5]
       }
     });
-    // tl.play();
-    // this._tl.progress(0.5);
-    // tl.pause();
-
 
     this.addChild(this._background);
     this.addChild(this._loadingBarMaskLeft);

@@ -84,7 +84,6 @@ export default class GameApplication extends Application {
 
     this.background.x = width / 2;
     this.background.y = height / 2;
-    // this.background.width = width;
     this.game.onResize(width, height);
 
     if (this.config.view.centerOnResize) {
@@ -107,7 +106,6 @@ export default class GameApplication extends Application {
 
     const scaleFactor = widthRatio > heightRatio ? widthRatio : heightRatio;
 
-    // console.log("Scale factor=", scaleFactor);
     this.viewport.scale.set(scaleFactor);
     this.background.scale.set(scaleFactor);
     this.fireContainer.scale.set(scaleFactor);
@@ -135,6 +133,13 @@ export default class GameApplication extends Application {
     this.stage.addChildAt(background);
   }
 
+  /**
+   * Adds and positions Fire objects above the background of the game
+   *
+   * @param {Number} [width=this.config.view.width]
+   * @param {Number} [height=this.config.view.height]
+   * @memberof GameApplication
+   */
   async addFire(width = this.config.view.width, height = this.config.view.height) {
     const images = {
       fire: Assets.images.fire,

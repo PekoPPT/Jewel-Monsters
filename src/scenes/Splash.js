@@ -1,28 +1,16 @@
 import Assets from '../core/AssetManager';
 import Scene from './Scene';
-import { Sprite, Text } from 'pixi.js';
 import config from '../config';
 import LoadingBar from '../components/LoadingBar';
-import Fire from '../components/Fire';
 
 export default class Splash extends Scene {
   constructor() {
     super();
 
-    // this.loadingText = new Text('0%', {
-    //   fontSize: 75,
-    //   fill: 0xffc900,
-    // });
-
     this.loadingBar = new LoadingBar({ max: 100, value: 0, width: 500 });
     this.loadingBar.y = 20;
     this.config = config.scenes.Splash;
 
-    // this.loadingText.anchor.set(0.5);
-    // this.loadingText.x = this.width / 2;
-    // this.loadingText.y = this.height / 2;
-
-    // this.addChild(this.loadingText);
     this.addChild(this.loadingBar);
   }
 
@@ -83,8 +71,6 @@ export default class Splash extends Scene {
   }
 
   onLoadProgress(val) {
-    console.log(val);
     this.loadingBar.set({ value: val * 2 });
-    // this.loadingText.text = `${val * 2}%`;
   }
 }

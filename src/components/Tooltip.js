@@ -7,10 +7,23 @@ export default class Tooltip extends Container {
     this.init();
   }
 
+  /**
+   * Initializes the Tooltip graphics
+   * 
+   * @method
+   * @memberof Tooltip
+   */
   init() {
     this._addTooltip();
   }
 
+  /**
+   * Adds the Tooltip background
+   * 
+   * @method
+   * @private
+   * @memberof Tooltip
+   */
   _addTooltip() {
     const toolTip = new Sprite.from('toolTip');
 
@@ -22,6 +35,13 @@ export default class Tooltip extends Container {
     this.addChild(toolTip);
   }
 
+  /**
+   * Adds text to the Tooltip
+   * 
+   * @method
+   * @private
+   * @memberof Tooltip
+   */
   _addTooltipText() {
     const thousandsTooltipDigit = new Symbol('5', 0.18, 'bw');
     this.thousandsTooltipDigit = thousandsTooltipDigit;

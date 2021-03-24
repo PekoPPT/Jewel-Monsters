@@ -1,5 +1,5 @@
-import { Container } from "pixi.js";
-import Symbol from "./Symbol";
+import { Container } from 'pixi.js';
+import Symbol from './Symbol';
 
 export default class XP extends Container {
   constructor(XPGained = 0) {
@@ -8,6 +8,13 @@ export default class XP extends Container {
     this.defineXP(XPGained);
   }
 
+  /**
+   * Defines XP symbol that appears when there is a row/column of same tiles
+   * 
+   * @method
+   * @private
+   * @memberof XP
+   */
   _addXPContainer() {
     const thousandsScoreDigit = new Symbol(5, 0.35, '');
     this.thousandsScoreDigit = thousandsScoreDigit;
@@ -42,6 +49,13 @@ export default class XP extends Container {
     this.addChild(this.pSymbolScoreBar);
   }
 
+  /**
+   * Sets the value that will be displayed in the XP element
+   *
+   * @param {Number} value - The value of the gained XP 
+   * @method
+   * @memberof XP
+   */
   defineXP(value) {
     this._value = value;
     const currentXPElements = this._value.toString().split('');

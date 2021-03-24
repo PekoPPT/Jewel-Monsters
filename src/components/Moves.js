@@ -1,4 +1,4 @@
-import { Container, Sprite, filters } from 'pixi.js';
+import { Container, Sprite } from 'pixi.js';
 import Symbol from './Symbol';
 
 export default class Moves extends Container {
@@ -11,20 +11,40 @@ export default class Moves extends Container {
     this.init();
   }
 
+  /**
+   * Initizlies the Moves panel
+   * 
+   * @method
+   * @memberof Moves
+   */
   async init() {
-    await this.addBackgrond();
-    await this.addText();
-    await this.addMovesDigits();
+    await this._addBackgrond();
+    await this._addText();
+    await this._addMovesDigits();
   }
 
-  addBackgrond() {
+  /**
+   * Adds the background element of the Move panel
+   * 
+   * @private
+   * @method
+   * @memberof Moves
+   */
+  _addBackgrond() {
     const movesBackground = new Sprite.from('movesBackground');
     movesBackground.anchor.set(0.5);
 
     this.addChild(movesBackground);
   }
 
-  addText() {
+  /**
+   * Adds the "MOVES" text of the Move panel
+   * 
+   * @private
+   * @method
+   * @memberof Moves
+   */
+  _addText() {
     const movesText = new Symbol('movesText', 1, 'bw');
     movesText.anchor.set(0.5);
     movesText.x = - 45;
@@ -32,7 +52,14 @@ export default class Moves extends Container {
     this.addChild(movesText);
   }
 
-  addMovesDigits() {
+  /**
+   * Adds the digits in the Move panel
+   * 
+   * @private
+   * @method
+   * @memberof Moves
+   */
+  _addMovesDigits() {
     const decimalDigit = new Symbol(this.decimalValueMoves, 0.8, 'bw');
     const singleDigit = new Symbol(this.singleValueMove, 0.8, 'bw');
 
@@ -51,6 +78,13 @@ export default class Moves extends Container {
     this.addChild(this.singleDigit);
   }
 
+  /**
+   * Changes the value of the remaining moves 
+   * 
+   * @method
+   * @param {Number} value
+   * @memberof Moves
+   */
   changeMoves(value) {
     const currentMovesElements = value.toString().split('');
 

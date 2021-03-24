@@ -1,9 +1,8 @@
-import { Container, Sprite } from "pixi.js";
-import Symbol from "./Symbol";
-import gsap from "gsap";
-import PixiPlugin from "gsap/PixiPlugin";
-import Tooltip from "./Tooltip";
-import XP from "./XP";
+import { Container, Sprite } from 'pixi.js';
+import gsap from 'gsap';
+import PixiPlugin from 'gsap/PixiPlugin';
+import Tooltip from './Tooltip';
+import XP from './XP';
 
 gsap.registerPlugin(PixiPlugin);
 export default class ProgressBar extends Container {
@@ -16,6 +15,12 @@ export default class ProgressBar extends Container {
     this.init();
   }
 
+  /**
+   * Initizlies the ProgressBar panel and all its elements - Current score and tag 
+   * 
+   * @method
+   * @memberof ProgressBar
+   */
   init() {
     this.toolTip = new Tooltip();
     this.toolTip.x = 10;
@@ -29,7 +34,9 @@ export default class ProgressBar extends Container {
 
   /**
    * Add the base of the Scorebar 
-   *
+   * 
+   * @method
+   * @private
    * @memberof ProgressBar
    */
   _addScoreBase() {
@@ -41,11 +48,14 @@ export default class ProgressBar extends Container {
     this.addChild(this.scoreBase);
   }
 
-  _fulfillScoreBar() {
-
-  }
-
-  set() {
+  /**
+   * Controls the visual representation of the gained score in Progressbar
+   * 
+   * @method
+   * @private
+   * @memberof ProgressBar
+   */
+  _setProgressBarProgress() {
 
     if (!this._barBegining.visible && !this._barEnding.visible && !this._bar.visible) {
       this._barBegining.visible = true;
@@ -58,13 +68,19 @@ export default class ProgressBar extends Container {
     if (this._barBegining.width + this._bar.width + this._barEnding.width < 570) {
       gsap.to(this._bar, { pixi: { width: this.scoreBase.width * this._value / this._max } });
       gsap.to(this._barEnding, { pixi: { x: this.scoreBase.width * this._value / this._max - 305 } });
-    }
-    else {
+    } else {
       gsap.to(this._bar, { pixi: { width: 547 } });
       gsap.to(this._barEnding, { pixi: { x: 547 - 305 } });
     }
   }
 
+  /**
+   * Creates filling of the score ProgressBar
+   * 
+   * @method
+   * @private
+   * @memberof ProgressBar
+   */
   _createBar() {
     this._barBegining = new Sprite.from('loadingLeft');
     this._barBegining.x = -332;
@@ -72,18 +88,11 @@ export default class ProgressBar extends Container {
     this._barBegining.visible = false;
     this.addChild(this._barBegining);
 
-
     this._bar = new Sprite.from('loadingMiddle');
-    // this._bar.beginFill(0x000000);
-    // this._bar.drawRect(0, 0, this._width, 25);
-    // this._bar.endFill();
-    // this._bar.alpha = 0.1;
     this._bar.x = -305;
     this._bar.y = 405;
     this._bar.width = 1;
     this._bar.visible = false;
-    // this._bar.height = 47;
-    // gsap.to(this._bar, { pixi: { width: this.scoreBase.width * this._value / this._max } });
     this.addChild(this._bar);
 
     this._barEnding = new Sprite.from('loadingRight');
@@ -94,9 +103,10 @@ export default class ProgressBar extends Container {
   }
 
   /**
-   * Defines the Symbol elements that will be displayed as part of the user's score.
-   * The Symbols defined below appear above the Pogressbar
+   * Defines the score that will be displayed above the Progressbar.
    *
+   * @method
+   * @private
    * @memberof ProgressBar
    */
   _addCurrenScoreText() {
@@ -109,17 +119,29 @@ export default class ProgressBar extends Container {
     this.addChild(this._currentScoreContainer);
   }
 
-
+  /**
+   * Changes the score displayed above the ProgressBar
+   *
+   * @param {Number} value - The new score gained by the user 
+   * @memberof ProgressBar
+   */
   changeScore(value) {
     this._currentScore += value;
     this._currentScoreContainer.defineXP(this._currentScore);
 
-    this.set();
+    this._setProgressBarProgress();
     if (this._currentScore >= 5000) {
       this.emit(ProgressBar.events.GAME_WON);
     }
   }
 
+  /**
+   * Defines the events triggered by the ProgressBar 
+   *
+   * @readonly
+   * @static
+   * @memberof ProgressBar
+   */
   static get events() {
     return {
       GAME_WON: 'game_won',

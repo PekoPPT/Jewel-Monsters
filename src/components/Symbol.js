@@ -7,17 +7,33 @@ export default class Symbol extends Sprite {
     this.init(symbolValue, scaleSize, symbolColor);
   }
 
+  /**
+   * Initializes a symbol from the available assests, based on passed value
+   *
+   * @param {String} symbolValue - The string value of the symbol that will be displayed as a Sprite
+   * @param {Number} scaleSize - The value of the scale that will be applied to the Sprite
+   * @param {String} symbolColor - Parameter controlling the color of the symbol
+   * @method
+   * @memberof Symbol
+   */
   init(symbolValue, scaleSize, symbolColor) {
-    this.initTextures();
+    this._initTextures();
 
     this.symbol = new Sprite();
     this.symbol.scale.set(scaleSize);
-    this.setColor(this.symbol, symbolColor);
+    this._setColor(this.symbol, symbolColor);
     this.setSymbol(symbolValue);
     this.addChild(this.symbol);
   }
 
-  initTextures() {
+  /**
+   * Initializes Textures form the available assets 
+   * 
+   * @method
+   * @private
+   * @memberof Symbol
+   */
+  _initTextures() {
     this.movesText = new Texture.from('movesText');
     this.textureX = new Texture.from('xSymbol');
     this.textureP = new Texture.from('pSymbol');
@@ -33,7 +49,16 @@ export default class Symbol extends Sprite {
     this.textureNine = new Texture.from('nineDigit');
   }
 
-  getCorrespondingTexture(symbolValue) {
+  /**
+   * Returns PIXI Texture based on the passed value
+   *
+   * @param {String} symbolValue - The string value of the symbol that will be displayed as a Sprite
+   * @method
+   * @private
+   * @return {PIXI.Texture} 
+   * @memberof Symbol
+   */
+  _getCorrespondingTexture(symbolValue) {
     let texture;
 
     switch (symbolValue) {
@@ -81,19 +106,34 @@ export default class Symbol extends Sprite {
     return texture;
   }
 
+  /**
+   * Sets the texture of the Symbol based on passed symbolValue
+   *
+   * @param {String} symbolValue - The string value of the symbol that will be displayed as a Sprite
+   * @method
+   * @memberof Symbol
+   */
   setSymbol(symbolValue) {
-    const texture = this.getCorrespondingTexture(symbolValue);
+    const texture = this._getCorrespondingTexture(symbolValue);
     this.symbol.texture = texture;
   }
 
-  setColor(sprite, color) {
+  /**
+   * Controls the color of the Symbol that will be displayed
+   *
+   * @param {PIXI.Sprite} sprite - Holds the Sprite that holds the visal asset that correspos to the symbolValue
+   * @param {String} color - Parameter controlling the color of the symbol
+   * @method
+   * @private
+   * @memberof Symbol
+   */
+  _setColor(sprite, color) {
     const colorMatrix = new filters.ColorMatrixFilter();
 
     switch (color) {
       case 'bw':
         sprite.filters = [colorMatrix];
         colorMatrix.blackAndWhite();
-      // colorMatrix.greyscale(0.4);
     }
   }
 

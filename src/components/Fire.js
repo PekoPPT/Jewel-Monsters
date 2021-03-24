@@ -9,7 +9,14 @@ export default class Fire extends Sprite {
     this.init();
   }
 
-  init() {
+  /**
+   * Initializes the Fire displayed next to the play board
+   *
+   * @method
+   * @private
+   * @memberof Fire
+   */
+  async init() {
     this._fire = new Sprite.from('fire');
     this._fire.anchor.set(0.5);
 
