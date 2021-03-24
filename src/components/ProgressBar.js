@@ -12,6 +12,7 @@ export default class ProgressBar extends Container {
     this._max = 5000;
     this._value = 400;
     this._currentScore = 0;
+    this._scoreBarMaxWidth = 547;
     this.init();
   }
 
@@ -28,7 +29,7 @@ export default class ProgressBar extends Container {
     this._addScoreBase();
     this._addCurrenScoreText();
     this._createBar();
-    this.changeScore(0);
+    // this.changeScore(0);
     this.addChild(this.toolTip);
   }
 
@@ -65,12 +66,13 @@ export default class ProgressBar extends Container {
 
     this._value = this._currentScore;
 
-    if (this._barBegining.width + this._bar.width + this._barEnding.width < 570) {
-      gsap.to(this._bar, { pixi: { width: this.scoreBase.width * this._value / this._max } });
-      gsap.to(this._barEnding, { pixi: { x: this.scoreBase.width * this._value / this._max - 305 } });
+    if (this._barBegining.width + this._bar.width + this._barEnding.width < this.scoreBase.width) {
+
+      gsap.to(this._bar, { pixi: { width: this._scoreBarMaxWidth * this._value / this._max } });
+      gsap.to(this._barEnding, { pixi: { x: this._scoreBarMaxWidth * this._value / this._max - 305 } });
     } else {
-      gsap.to(this._bar, { pixi: { width: 547 } });
-      gsap.to(this._barEnding, { pixi: { x: 547 - 305 } });
+      gsap.to(this._bar, { pixi: { width: this._scoreBarMaxWidth } });
+      gsap.to(this._barEnding, { pixi: { x: this._scoreBarMaxWidth - 305 } });
     }
   }
 
