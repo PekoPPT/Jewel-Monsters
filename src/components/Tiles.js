@@ -162,14 +162,17 @@ export default class Tiles extends Container {
 
     const newPosition = this.data.getLocalPosition(this.parent);
 
+    // Exchnage tile with the one on left
     if (newPosition.x < this.initialPositionX - 60 && this.name !== '00' && this.name !== '10' && this.name !== '20' && this.name !== '30' && this.name !== '40' && this.name !== '50') {
       this.position.x = this.initialPositionX - 100;
       this.position.y = this.initialPositionY;
 
       const itemToMoveSelector = String(this.currentTileRow) + Number(this.currentTileCol - 1);
+      console.log(itemToMoveSelector);
+
       const itemToMove = this.parent.getChildByName(itemToMoveSelector);
 
-      this.parent._();
+      this.parent._moveStoneSound();
       gsap.to(itemToMove, { pixi: { positionX: itemToMove.x + 100 }, duration: 0.3 });
 
       const selectedTile = this.parent.playGround[this.currentTileRow][this.currentTileCol];
@@ -186,7 +189,10 @@ export default class Tiles extends Container {
       // Emit an event on every move. 
       this.parent.emit(Tiles.events.MOVE_MADE);
 
-    } else if (newPosition.x > this.initialPositionX + 60 && this.name !== '05' && this.name !== '15' && this.name !== '25' && this.name !== '35' && this.name !== '45' && this.name !== '55') {
+    }
+    // Exchnage tile with the one on right
+
+    else if (newPosition.x > this.initialPositionX + 60 && this.name !== '05' && this.name !== '15' && this.name !== '25' && this.name !== '35' && this.name !== '45' && this.name !== '55') {
       this.position.x = this.initialPositionX + 100;
       this.position.y = this.initialPositionY;
 
@@ -194,9 +200,10 @@ export default class Tiles extends Container {
       const col = Number(this.currentTileCol) + 1;
 
       const itemToMoveSelector = String(row + col);
+      console.log(itemToMoveSelector);
       const itemToMove = this.parent.getChildByName(itemToMoveSelector);
 
-      this.parent._();
+      this.parent._moveStoneSound();
       gsap.to(itemToMove, { pixi: { positionX: itemToMove.x - 100 }, duration: 0.3 });
 
       const selectedTile = this.parent.playGround[this.currentTileRow][this.currentTileCol];
@@ -213,7 +220,10 @@ export default class Tiles extends Container {
       // Emit an event on every move. 
       this.parent.emit(Tiles.events.MOVE_MADE);
 
-    } else if (newPosition.y > this.initialPositionY + 60 && this.name !== '50' && this.name !== '51' && this.name !== '52' && this.name !== '53' && this.name !== '54' && this.name !== '55') {
+    }
+    // Exchnage tile with the one above
+
+    else if (newPosition.y > this.initialPositionY + 60 && this.name !== '50' && this.name !== '51' && this.name !== '52' && this.name !== '53' && this.name !== '54' && this.name !== '55') {
 
       this.position.x = this.initialPositionX;
       this.position.y = this.initialPositionY + 100;
@@ -222,9 +232,11 @@ export default class Tiles extends Container {
       const col = this.currentTileCol;
 
       const itemToMoveSelector = String(row + col);
+      console.log(itemToMoveSelector);
+
       const itemToMove = this.parent.getChildByName(itemToMoveSelector);
 
-      this.parent._();
+      this.parent._moveStoneSound();
       gsap.to(itemToMove, { pixi: { positionY: itemToMove.y - 100 }, duration: 0.3 });
 
       const selectedTile = this.parent.playGround[this.currentTileRow][this.currentTileCol];
@@ -240,7 +252,10 @@ export default class Tiles extends Container {
       // Emit an event on every move. 
       this.parent.emit(Tiles.events.MOVE_MADE);
 
-    } else if (newPosition.y < this.initialPositionY - 60 && this.name !== '00' && this.name !== '01' && this.name !== '02' && this.name !== '03' && this.name !== '04' && this.name !== '05') {
+    }
+    // Exchnage tile with the one below
+
+    else if (newPosition.y < this.initialPositionY - 60 && this.name !== '00' && this.name !== '01' && this.name !== '02' && this.name !== '03' && this.name !== '04' && this.name !== '05') {
 
       this.position.x = this.initialPositionX;
       this.position.y = this.initialPositionY - 100;
@@ -249,9 +264,11 @@ export default class Tiles extends Container {
       const col = this.currentTileCol;
 
       const itemToMoveSelector = String(row + col);
+      console.log(itemToMoveSelector);
+
       const itemToMove = this.parent.getChildByName(itemToMoveSelector);
 
-      this.parent._();
+      this.parent._moveStoneSound();
       gsap.to(itemToMove, { pixi: { positionY: itemToMove.y + 100 }, duration: 0.3 });
 
       const selectedTile = this.parent.playGround[this.currentTileRow][this.currentTileCol];
@@ -282,21 +299,21 @@ export default class Tiles extends Container {
 
 
     // this.parent._checkForIdenticalElements();
-    setTimeout(() => {
-      this.parent.playGround.forEach((row) => {
-        let namesArr = [];
-        row.forEach((record) => namesArr.push(record.name));
-        console.log(namesArr);
-        namesArr = [];
-      })
+    // setTimeout(() => {
+    //   this.parent.playGround.forEach((row) => {
+    //     let namesArr = [];
+    //     row.forEach((record) => namesArr.push(record.name));
+    //     console.log(namesArr);
+    //     namesArr = [];
+    //   })
 
-      //   this.parent.playGround.forEach((row) => {
-      //     let namesArr = [];
-      //     row.forEach((record) => namesArr.push(record.tileType));
-      //     console.log(namesArr);
-      //     namesArr = [];
-      //   });
-    }, 1000);
+    //   this.parent.playGround.forEach((row) => {
+    //     let namesArr = [];
+    //     row.forEach((record) => namesArr.push(record.tileType));
+    //     console.log(namesArr);
+    //     namesArr = [];
+    //   });
+    // }, 1000);
   }
 
   /**
@@ -514,19 +531,29 @@ export default class Tiles extends Container {
       }
     }
 
-    setTimeout(() => {
-      this.playGround.forEach((row) => {
-        let namesArr = [];
-        row.forEach((record) => {
-          if (record !== null) {
-            namesArr.push(record.name);
-          } else {
-            namesArr.push(null);
-          }
-        });
-        namesArr = [];
+    // setTimeout(() => {
+    this.playGround.forEach((row) => {
+      let namesArr = [];
+      // console.log(row);
+      row.forEach((record) => {
+        if (record !== null) {
+          namesArr.push(record.name);
+        } else {
+          namesArr.push(null);
+        }
       });
-    }, 1000);
+      namesArr = [];
+    });
+    // }, 1000);
+    // setTimeout(() => {
+
+    //   this.playGround.forEach((row) => {
+    //     let namesArr = [];
+    //     row.forEach((record) => namesArr.push(record.name));
+    //     console.log(namesArr);
+    //     namesArr = [];
+    //   })
+    // }, 1000);
 
   }
 

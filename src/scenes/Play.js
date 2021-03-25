@@ -6,6 +6,8 @@ import Moves from '../components/Moves';
 import ProgressBar from '../components/ProgressBar';
 import Tiles from '../components/Tiles';
 import XP from '../components/XP';
+import Assets from '../core/AssetManager';
+import random from '../core/utils';
 
 export default class Play extends Scene {
   constructor() {
@@ -20,6 +22,9 @@ export default class Play extends Scene {
     await this._addMovesPanel();
     await this._addProgressBar();
     await this._addTiles();
+
+    this._addBackgroundSounds();
+    // play the backgroudn music
   }
 
   /**
@@ -43,12 +48,15 @@ export default class Play extends Scene {
   async _addTiles() {
     const that = this;
     const tiles = new Tiles();
+    this.name = 'playground';
     this.tiles = tiles;
     this.tiles.x = - 280;
     this.tiles.y = - 211;
     this.tiles.on('move_made', function moveMade() {
       that.movesToPlay -= 1;
-      that._showLoseScreen();
+      if (that.movesToPlay === 0) {
+        that._showLoseScreen();
+      }
       that.movesPanel.changeMoves(that.movesToPlay);
       that.tiles._checkForIdenticalElements();
     });
@@ -144,12 +152,14 @@ export default class Play extends Scene {
    * @memberof Play
    */
   async _showWinScreen() {
-    this.winScreenVisible = true;
-    this.hidePlayGround();
+    Assets.sounds.jingleAchievement.play();
 
-    await this.addXpIconToWinScreen('xpLeft', - 387, - 271, 0.45, -0.5);
-    await this.addXpIconToWinScreen('xpTop', 148, - 501, 0.5, 0.45);
-    await this.addXpIconToWinScreen('xpRight', 381, - 223, 1, 0.69);
+    this.winScreenVisible = true;
+    this._hidePlayGround();
+
+    await this._addXpIconToWinScreen('xpLeft', - 387, - 271, 0.45, -0.5);
+    await this._addXpIconToWinScreen('xpTop', 148, - 501, 0.5, 0.45);
+    await this._addXpIconToWinScreen('xpRight', 381, - 223, 1, 0.69);
 
     const winScreenMonsterLeft = new Character(true);
     this.winScreenMonsterLeft = winScreenMonsterLeft;
@@ -194,6 +204,8 @@ export default class Play extends Scene {
    * @memberof Play
    */
   async _showLoseScreen() {
+    Assets.sounds.loseGameSound.play();
+
     this.loseScreenVisible = true;
     this._hidePlayGround();
     this._addLoseLabel();
@@ -373,4 +385,20 @@ export default class Play extends Scene {
     this.onCreated();
   }
 
+
+  /**
+   * Periodically plays a "creature in the cave" sound.
+   * Loops
+   * 
+   * @methods
+   * @private
+   * @memberof Play
+   */
+  _addBackgroundSounds() {
+    Assets.sounds.horrorcaveambience.play().loop(true);
+
+    setInterval(() => {
+      Assets.sounds.createureInTheCave.play();
+    }, 30000);
+  }
 }

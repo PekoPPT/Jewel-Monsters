@@ -16,8 +16,7 @@ export default class Splash extends Scene {
 
   get finish() {
 
-    return new Promise((res) => setTimeout(res, 100));
-    // return new Promise((res) => setTimeout(res, this.config.hideDelay));
+    return new Promise((res) => setTimeout(res, this.config.hideDelay));
   }
 
   preload() {
@@ -57,7 +56,11 @@ export default class Splash extends Scene {
     };
     const sounds = {
       stoneHit: Assets.sounds['sounds/stone-hitting-big-stone'],
-      scrapingStone: Assets.sounds['sounds/scraping-stone']
+      scrapingStone: Assets.sounds['sounds/scraping-stone'],
+      createureInTheCave: Assets.sounds['sounds/creature-in-da-cave'],
+      jingleAchievement: Assets.sounds['sounds/jingle-achievement'],
+      loseGameSound: Assets.sounds['sounds/gear-shif-fail-scratch'],
+      horrorcaveambience: Assets.sounds['sounds/horrorcaveambience']
     };
 
     return super.preload({ images, sounds }).then(() => {
