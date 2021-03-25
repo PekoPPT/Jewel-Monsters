@@ -18,6 +18,7 @@ Based on the pre-defined specifications the following requirements are met:
 * The expected gameplay
 * Loading scene with circular loading bar
 * Has Win and Lose screens
+* The game works on both desktop and mobile devices
 * The XP won with each move flies out of the created line
 * There are animations in the tiles' moving
 * The user has to reach 5000 xp in 20 moves
