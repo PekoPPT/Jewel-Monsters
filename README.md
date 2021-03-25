@@ -43,7 +43,10 @@ Based on the pre-defined specifications the following requirements are met:
 | 1. `npm start` | Make sure that you have a running project by starting the `npm start` commad |
 | 2. `npm test` | Run the Cypress tests |
 
-
-
+## Future improvements
+* Add separate Win a Lose scenese
+* Rewrite the Tile moves implementation
+* Rewrite the Tile moves implementation in a way this functionality can be tested with Cypress
+* Make the game more catchy by creating additional animations for the Monsters, Fire and other elements 
 
 🟡🟡🟡

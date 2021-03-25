@@ -18,6 +18,8 @@ export default class GameApplication extends Application {
     this._applicationWidth = window.innerWidth;
     this._applicationHeight = window.innerHeight;
 
+    window.pixiApp = this.stage;
+
     this.setupViewport();
     this.initGame();
   }
