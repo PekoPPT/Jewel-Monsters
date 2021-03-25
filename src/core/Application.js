@@ -1,9 +1,10 @@
-import { Sprite, Application } from 'pixi.js';
+import { Sprite, Application, Container } from 'pixi.js';
 import config from '../config';
 import Game from '../Game';
 import { Viewport } from 'pixi-viewport';
 import { center } from './utils';
 import Assets from './AssetManager';
+import Fire from '../components/Fire';
 
 /**
  * Game entry point. Holds the game's viewport and responsive background
@@ -12,9 +13,12 @@ import Assets from './AssetManager';
 export default class GameApplication extends Application {
   constructor() {
     super(config.view);
-
     this.config = config;
     Assets.renderer = this.renderer;
+    this._applicationWidth = window.innerWidth;
+    this._applicationHeight = window.innerHeight;
+
+    window.pixiApp = this.stage;
 
     this.setupViewport();
     this.initGame();
@@ -27,6 +31,7 @@ export default class GameApplication extends Application {
    */
   async initGame() {
     await this.createBackground();
+    await this.addFire();
 
     this.game = new Game({
       background: this.background,
@@ -78,6 +83,7 @@ export default class GameApplication extends Application {
      * @param  {Number} height        The updated viewport width
      */
   onResize(width = this.config.view.width, height = this.config.view.height) {
+
     this.background.x = width / 2;
     this.background.y = height / 2;
     this.game.onResize(width, height);
@@ -86,6 +92,25 @@ export default class GameApplication extends Application {
       this.viewport.x = width / 2;
       this.viewport.y = height / 2;
     }
+    this.scaleGameBasedOnResolution(width, height);
+  }
+
+  /**
+   * Resize the viewport & background based on the screen width.
+   *
+   * @param {Number} width
+   * @param {Number} height
+   * @memberof GameApplication
+   */
+  scaleGameBasedOnResolution(width = this.config.view.width, height = this.config.view.height) {
+    const widthRatio = width / this.background.width;
+    const heightRatio = height / this.background.height;
+
+    const scaleFactor = widthRatio > heightRatio ? widthRatio : heightRatio;
+
+    this.viewport.scale.set(scaleFactor);
+    this.background.scale.set(scaleFactor);
+    this.fireContainer.scale.set(scaleFactor);
   }
 
   /**
@@ -94,18 +119,58 @@ export default class GameApplication extends Application {
    *
    */
   async createBackground() {
-    const images = { background: Assets.images.background };
+    const images = {
+      background: Assets.images.bg,
+    };
 
     await Assets.load({ images });
     await Assets.prepareImages(images);
 
-    const sprite = Sprite.from('background');
+    const background = Sprite.from('background');
 
-    this.background = sprite;
+    this.background = background;
     this.background.anchor.set(0.5);
     this.background.name = 'background';
 
-    this.stage.addChildAt(sprite);
+    this.stage.addChildAt(background);
+  }
+
+  /**
+   * Adds and positions Fire objects above the background of the game
+   *
+   * @param {Number} [width=this.config.view.width]
+   * @param {Number} [height=this.config.view.height]
+   * @memberof GameApplication
+   */
+  async addFire(width = this.config.view.width, height = this.config.view.height) {
+    const images = {
+      fire: Assets.images.fire,
+      fireGlow: Assets.images['fire-glow']
+    };
+
+    await Assets.load({ images });
+    await Assets.prepareImages(images);
+
+    const fireContainer = new Container();
+    this.fireContainer = fireContainer;
+    this.fireContainer.x = width / 2 + width * 0.048;
+    this.fireContainer.y = height / 2 + height * 0.13;
+
+    const fireLeft = new Fire();
+    const fireRight = new Fire();
+
+    this.fireLeft = fireLeft;
+    this.fireLeft.x = -749;
+    this.fireLeft.y = -26;
+
+    this.fireRight = fireRight;
+    this.fireRight.x = 631;
+    this.fireRight.y = -26;
+
+    this.fireContainer.addChild(this.fireLeft);
+    this.fireContainer.addChild(this.fireRight);
+
+    this.stage.addChild(this.fireContainer);
   }
 }
 
