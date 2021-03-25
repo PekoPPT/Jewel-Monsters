@@ -6,7 +6,7 @@
   "scripts": {
     "build": "webpack",
     "start": "webpack-dev-server --open --mode=development",
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "cypress run",
     "lint": "eslint src --max-warnings 0",
     "lintfix": "npm run lint -- --fix",
     "release": "standard-version"
@@ -27,6 +27,7 @@
     "webpack-merge": "^4.2.2"
   },
   "dependencies": {
+    "cypress": "^3.8.3",
     "eslint": "^6.8.0",
     "gsap": "file:gsap-bonus.tgz",
     "howler": "^2.1.3",
