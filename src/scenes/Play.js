@@ -1,13 +1,12 @@
-import { Graphics, Sprite, Text, filters } from 'pixi.js';
-import Scene from './Scene';
 import { gsap, Sine } from 'gsap';
+import { Sprite } from 'pixi.js';
 import Character from '../components/Character';
 import Moves from '../components/Moves';
 import ProgressBar from '../components/ProgressBar';
 import Tiles from '../components/Tiles';
 import XP from '../components/XP';
 import Assets from '../core/AssetManager';
-import random from '../core/utils';
+import Scene from './Scene';
 
 export default class Play extends Scene {
   constructor() {
@@ -23,7 +22,7 @@ export default class Play extends Scene {
     await this._addProgressBar();
     await this._addTiles();
 
-    this._addBackgroundSounds();
+    // this._addBackgroundSounds();
     // play the backgroudn music
   }
 
@@ -395,7 +394,7 @@ export default class Play extends Scene {
    * @memberof Play
    */
   _addBackgroundSounds() {
-    Assets.sounds.horrorcaveambience.play().loop(true);
+    Assets.sounds.horrorcaveambience.play();
 
     setInterval(() => {
       Assets.sounds.createureInTheCave.play();

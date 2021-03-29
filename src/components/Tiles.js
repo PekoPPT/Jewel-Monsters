@@ -19,62 +19,23 @@ export default class Tiles extends Container {
   }
 
   /**
-   * Generates a random tile name 
-   * 
-   * @method
-   * @private
-   * @return {Object} - Contains Tile type text and the generated random value 
-   * @memberof Tiles
-   */
-  _tileGenerator() {
-    const randomValue = random(1, 6);
-
-    let randomTile;
-    switch (randomValue) {
-      case 1:
-        randomTile = 'snowTile';
-        break;
-      case 2:
-        randomTile = 'leafTile';
-        break;
-      case 3:
-        randomTile = 'flameTile';
-        break;
-      case 4:
-        randomTile = 'potionTile';
-        break;
-      case 5:
-        randomTile = 'vortexTile';
-        break;
-      case 6:
-        randomTile = 'skullTile';
-        break;
-    }
-
-    return { randomTile, randomValue };
-  }
-
-  /**
    * Initializes the Board of the game
-   * 
+   *
    * @method
    * @memberof Tiles
    */
   async init() {
-
     let xPosition = 0;
     let yPosition = 0;
-    for (let row = 0; row < 6; row++) {
-      setTimeout(() => {
-        for (let column = 0; column < 6; column++) {
-          const { randomTile, randomValue } = this._tileGenerator();
-          this.createTile(randomTile, xPosition, yPosition, row, column);
-          xPosition += 100;
 
-        }
-        xPosition = 0;
-        yPosition += 100;
-      }, 900);
+    for (let row = 0; row < 6; row++) {
+      for (let column = 0; column < 6; column++) {
+        this.createTile(xPosition, yPosition, row, column);
+        xPosition += 100;
+      }
+
+      xPosition = 0;
+      yPosition += 100;
     }
 
     setTimeout(() => {
@@ -93,13 +54,15 @@ export default class Tiles extends Container {
    * @method
    * @memberof Tiles
    */
-  async createTile(randomTile, xPosition, yPosition, row, col) {
-    const tile = new Sprite.from(randomTile);
-    tile.tileType = randomTile;
+  async createTile(xPosition, yPosition, row, col) {
+    const tileId = ['snowTile', 'leafTile', 'flameTile', 'potionTile', 'vortexTile', 'skullTile'][random(0, 5)];
+
+    const tile = new Sprite.from(tileId);
+    tile.tileType = tileId;
     tile.name = String(row) + col;
     tile.zIndex = 100;
     tile.x = xPosition;
-    tile.y = -100;
+    tile.y = -200;
     tile.interactive = true;
     tile.buttonMode = true;
     tile.anchor.set(0.5);
@@ -125,7 +88,7 @@ export default class Tiles extends Container {
   }
 
   /**
-   * Controls the logic when a tiles is Clicked or Tapped 
+   * Controls the logic when a tiles is Clicked or Tapped
    *
    * @param {*} event
    * @method
@@ -138,8 +101,8 @@ export default class Tiles extends Container {
     const nameSplit = this.name.split('');
     this.data = event.data;
 
-    this.currentTileRow = nameSplit[0];
-    this.currentTileCol = nameSplit[1];
+    this.currentTileRow = Number(nameSplit[0]);
+    this.currentTileCol = Number(nameSplit[1]);
     this.initialPositionX = this.position.x;
     this.initialPositionY = this.position.y;
     this.alpha = 0.5;
@@ -154,134 +117,144 @@ export default class Tiles extends Container {
    * @memberof Tiles
    */
   _onDragEnd() {
-
     Assets.sounds.stoneHit.play();
-
+    debugger;
     this.alpha = 1;
     this.dragging = false;
 
     const newPosition = this.data.getLocalPosition(this.parent);
 
+    const oldX = this.initialPositionX;
+    const oldY = this.initialPositionY;
+
+    const newX = newPosition.x;
+    const newY = newPosition.y;
+
+    const max = 600;
+    const min = 0;
+
+    const moveThreshold = 60;
+
+    const playground = this.parent.playGround;
+
     // Exchnage tile with the one on left
-    if (newPosition.x < this.initialPositionX - 60 && this.name !== '00' && this.name !== '10' && this.name !== '20' && this.name !== '30' && this.name !== '40' && this.name !== '50') {
-      this.position.x = this.initialPositionX - 100;
-      this.position.y = this.initialPositionY;
+    if (newX < oldX - moveThreshold && this.initialPositionX > min) {
+      // Set the position of the new tile;
+      this.position.x = oldX - 100;
+      this.position.y = oldY;
 
-      const itemToMoveSelector = String(this.currentTileRow) + Number(this.currentTileCol - 1);
-      console.log(itemToMoveSelector);
+      // Identify tile over which we are moving
+      const itemToMove = playground[this.currentTileRow][this.currentTileCol - 1];
 
-      const itemToMove = this.parent.getChildByName(itemToMoveSelector);
+      // Tile being moved
+      const selectedTile = playground[this.currentTileRow][this.currentTileCol];
 
-      this.parent._moveStoneSound();
-      gsap.to(itemToMove, { pixi: { positionX: itemToMove.x + 100 }, duration: 0.3 });
-
-      const selectedTile = this.parent.playGround[this.currentTileRow][this.currentTileCol];
-
-      this.parent.playGround[this.currentTileRow][this.currentTileCol] = this.parent.playGround[this.currentTileRow][this.currentTileCol - 1];
-      this.parent.playGround[this.currentTileRow][this.currentTileCol - 1] = selectedTile;
-
-      const tile1 = this.parent.getChildByName(String(this.currentTileRow) + Number(this.currentTileCol - 1));
-      const tile2 = this.parent.getChildByName(String(this.currentTileRow) + Number(this.currentTileCol));
-
+      // Remove this when we get rid of the names
+      const tile1 = playground[this.currentTileRow][this.currentTileCol - 1];
+      const tile2 = playground[this.currentTileRow][this.currentTileCol];
       tile1.name = String(this.currentTileRow) + Number(this.currentTileCol);
       tile2.name = String(this.currentTileRow) + Number(this.currentTileCol - 1);
 
-      // Emit an event on every move. 
+      // Switch the tiles
+      playground[this.currentTileRow][this.currentTileCol] = itemToMove;
+      playground[this.currentTileRow][this.currentTileCol - 1] = selectedTile;
+
+      // Play sound & do animation
+      this.parent._moveStoneSound();
+      gsap.to(itemToMove, { pixi: { positionX: itemToMove.x + 100 }, duration: 0.3 });
+
       this.parent.emit(Tiles.events.MOVE_MADE);
-
     }
+
     // Exchnage tile with the one on right
+    else if (newX > oldX + moveThreshold && this.initialPositionX < max) {
+      this.position.x = oldX + 100;
+      this.position.y = oldY;
 
-    else if (newPosition.x > this.initialPositionX + 60 && this.name !== '05' && this.name !== '15' && this.name !== '25' && this.name !== '35' && this.name !== '45' && this.name !== '55') {
-      this.position.x = this.initialPositionX + 100;
-      this.position.y = this.initialPositionY;
+      // Identify tile over which we are moving
+      const itemToMove = playground[this.currentTileRow][this.currentTileCol + 1];
 
-      const row = this.currentTileRow;
-      const col = Number(this.currentTileCol) + 1;
+      // Tile being moved
+      const selectedTile = playground[this.currentTileRow][this.currentTileCol];
 
-      const itemToMoveSelector = String(row + col);
-      console.log(itemToMoveSelector);
-      const itemToMove = this.parent.getChildByName(itemToMoveSelector);
+      // Remove this when we get rid of the names
+      const tile1 = playground[this.currentTileRow][this.currentTileCol + 1];
+      const tile2 = playground[this.currentTileRow][this.currentTileCol];
 
+      tile1.name = String(this.currentTileRow) + Number(this.currentTileCol);
+      tile2.name = String(this.currentTileRow) + Number(this.currentTileCol + 1);
+
+      // Switch the tiles
+      playground[this.currentTileRow][this.currentTileCol] = itemToMove;
+      playground[this.currentTileRow][this.currentTileCol + 1] = selectedTile;
+
+      // Play sound & do animation
       this.parent._moveStoneSound();
       gsap.to(itemToMove, { pixi: { positionX: itemToMove.x - 100 }, duration: 0.3 });
 
-      const selectedTile = this.parent.playGround[this.currentTileRow][this.currentTileCol];
-
-      this.parent.playGround[this.currentTileRow][this.currentTileCol] = this.parent.playGround[this.currentTileRow][Number(this.currentTileCol) + 1];
-      this.parent.playGround[this.currentTileRow][Number(this.currentTileCol) + 1] = selectedTile;
-
-      const tile1 = this.parent.getChildByName(String(row + col));
-      const tile2 = this.parent.getChildByName(String(this.currentTileRow) + this.currentTileCol);
-
-      tile1.name = String(this.currentTileRow) + Number(this.currentTileCol);
-      tile2.name = String(row + col);
-
-      // Emit an event on every move. 
+      // Emit an event on every move.
       this.parent.emit(Tiles.events.MOVE_MADE);
-
     }
-    // Exchnage tile with the one above
 
-    else if (newPosition.y > this.initialPositionY + 60 && this.name !== '50' && this.name !== '51' && this.name !== '52' && this.name !== '53' && this.name !== '54' && this.name !== '55') {
+    // Exchnage tile with the one below
+    else if (newY > oldY + moveThreshold && this.initialPositionY < max) {
 
-      this.position.x = this.initialPositionX;
-      this.position.y = this.initialPositionY + 100;
+      this.position.x = oldX;
+      this.position.y = oldY + 100;
 
-      const row = Number(this.currentTileRow) + 1;
-      const col = this.currentTileCol;
+      // Identify tile over which we are moving
+      const itemToMove = playground[this.currentTileRow + 1][this.currentTileCol];
 
-      const itemToMoveSelector = String(row + col);
-      console.log(itemToMoveSelector);
+      // Tile being moved
+      const selectedTile = playground[this.currentTileRow][this.currentTileCol];
 
-      const itemToMove = this.parent.getChildByName(itemToMoveSelector);
+      // Remove this when we get rid of the names
+      const tile1 = playground[this.currentTileRow + 1][this.currentTileCol];
+      const tile2 = playground[this.currentTileRow][this.currentTileCol];
+      tile1.name = String(this.currentTileRow) + Number(this.currentTileCol);
+      tile2.name = String(this.currentTileRow + 1) + Number(this.currentTileCol);
 
+      // Switch the tiles
+      playground[this.currentTileRow][this.currentTileCol] = itemToMove;
+      playground[this.currentTileRow + 1][this.currentTileCol] = selectedTile;
+
+      // Play sound & do animation
       this.parent._moveStoneSound();
       gsap.to(itemToMove, { pixi: { positionY: itemToMove.y - 100 }, duration: 0.3 });
 
-      const selectedTile = this.parent.playGround[this.currentTileRow][this.currentTileCol];
-      this.parent.playGround[this.currentTileRow][this.currentTileCol] = this.parent.playGround[Number(this.currentTileRow) + 1][this.currentTileCol];
-      this.parent.playGround[Number(this.currentTileRow) + 1][this.currentTileCol] = selectedTile;
-
-      const tile1 = this.parent.getChildByName(String(row + col));
-      const tile2 = this.parent.getChildByName(String(this.currentTileRow) + this.currentTileCol);
-
-      tile1.name = String(this.currentTileRow) + Number(this.currentTileCol);
-      tile2.name = String(row + col);
-
-      // Emit an event on every move. 
+      // Emit an event on every move.
       this.parent.emit(Tiles.events.MOVE_MADE);
 
     }
-    // Exchnage tile with the one below
 
-    else if (newPosition.y < this.initialPositionY - 60 && this.name !== '00' && this.name !== '01' && this.name !== '02' && this.name !== '03' && this.name !== '04' && this.name !== '05') {
+    // Exchnage tile with the one above
+    else if (newY < oldY - moveThreshold && this.initialPositionY > min) {
 
-      this.position.x = this.initialPositionX;
-      this.position.y = this.initialPositionY - 100;
+      this.position.x = oldX;
+      this.position.y = oldY - 100;
 
-      const row = Number(this.currentTileRow) - 1;
-      const col = this.currentTileCol;
+      // Identify tile over which we are moving
+      const itemToMove = playground[this.currentTileRow - 1][this.currentTileCol];
 
-      const itemToMoveSelector = String(row + col);
-      console.log(itemToMoveSelector);
+      // Tile being moved
+      const selectedTile = playground[this.currentTileRow][this.currentTileCol];
 
-      const itemToMove = this.parent.getChildByName(itemToMoveSelector);
 
+      // Remove this when we get rid of the names
+      const tile1 = playground[this.currentTileRow - 1][this.currentTileCol];
+      const tile2 = playground[this.currentTileRow][this.currentTileCol];
+      tile1.name = String(this.currentTileRow) + Number(this.currentTileCol);
+      tile2.name = String(this.currentTileRow - 1) + Number(this.currentTileCol);
+
+      // Switch the tiles
+      playground[this.currentTileRow][this.currentTileCol] = itemToMove;
+      playground[this.currentTileRow - 1][this.currentTileCol] = selectedTile;
+
+      // Play sound & do animation
       this.parent._moveStoneSound();
       gsap.to(itemToMove, { pixi: { positionY: itemToMove.y + 100 }, duration: 0.3 });
 
-      const selectedTile = this.parent.playGround[this.currentTileRow][this.currentTileCol];
-      this.parent.playGround[this.currentTileRow][this.currentTileCol] = this.parent.playGround[Number(this.currentTileRow) - 1][this.currentTileCol];
-      this.parent.playGround[Number(this.currentTileRow) - 1][this.currentTileCol] = selectedTile;
-
-      const tile1 = this.parent.getChildByName(String(row + col));
-      const tile2 = this.parent.getChildByName(String(this.currentTileRow) + this.currentTileCol);
-
-      tile1.name = String(this.currentTileRow) + Number(this.currentTileCol);
-      tile2.name = String(row + col);
-
-      // Emit an event on every move. 
+      // Emit an event on every move.
       this.parent.emit(Tiles.events.MOVE_MADE);
 
     } else {
@@ -289,31 +262,7 @@ export default class Tiles extends Container {
       this.position.y = this.initialPositionY;
     }
 
-    // set the interaction data to null
-    this.data = null;
-    this.initialPositionX = null;
-    this.initialPositionY = null;
-    this.currentTileCol = null;
-    this.currentTileRow = null;
     this.zIndex = 100;
-
-
-    // this.parent._checkForIdenticalElements();
-    // setTimeout(() => {
-    //   this.parent.playGround.forEach((row) => {
-    //     let namesArr = [];
-    //     row.forEach((record) => namesArr.push(record.name));
-    //     console.log(namesArr);
-    //     namesArr = [];
-    //   })
-
-    //   this.parent.playGround.forEach((row) => {
-    //     let namesArr = [];
-    //     row.forEach((record) => namesArr.push(record.tileType));
-    //     console.log(namesArr);
-    //     namesArr = [];
-    //   });
-    // }, 1000);
   }
 
   /**
@@ -346,9 +295,9 @@ export default class Tiles extends Container {
 
 
   /**
-   * Check for identical elements in the playgound. 
+   * Check for identical elements in the playgound.
    * Handles the remove of the matched Tiles and the generation of the new ones.
-   * 
+   *
    * @method
    * @private
    * @memberof Tiles
@@ -362,17 +311,14 @@ export default class Tiles extends Container {
       // Remove the tiles
       this._removeTileGroup(matches);
 
-      // Move the tiles down to fulfill the gaps opened by the removed tiles 
+      // Move the tiles down to fulfill the gaps opened by the removed tiles
       this._moveRowsDown();
 
-      // Add new tiles to the board 
+      // Add new tiles to the board
       this._fulFillTheGaps();
 
     } else {
-      // If there are no matches available 
-
-      console.log(random(0, 5));
-      console.log(random(0, 5));
+      // If there are no matches available
     }
   }
 
@@ -507,7 +453,7 @@ export default class Tiles extends Container {
 
   /**
    * Moves the existing tiles down to fulfill the gaps left by the removed tiles
-   * 
+   *
    * @method
    * @private
    * @memberof Tiles
@@ -559,7 +505,7 @@ export default class Tiles extends Container {
 
   /**
    * Generates new tiles and add them on the top of each playgorund column
-   * 
+   *
    * @method
    * @private
    * @memberof Tiles
@@ -569,8 +515,7 @@ export default class Tiles extends Container {
     for (let row = this.playGround.length - 1; row >= 0; row--) {
       for (let y = 0; y < this.playGround[row].length; y++) {
         if (this.playGround[row][y] === null) {
-          const { randomTile, randomValue } = this._tileGenerator();
-          await this.createTile(randomTile, y * 100, row * 100, row, y);
+          await this.createTile(y * 100, row * 100, row, y);
         };
       }
     }
@@ -580,7 +525,7 @@ export default class Tiles extends Container {
   }
 
   /**
-   * Defines the events triggered by each Tile 
+   * Defines the events triggered by each Tile
    *
    * @readonly
    * @static
