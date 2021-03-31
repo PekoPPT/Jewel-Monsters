@@ -64,6 +64,12 @@ export default class Play extends Scene {
     // Updates the score in the progress bar
     // Adds 
     this.tiles.on('calculations_ready', function calculations_ready(scoreToChange, xpPositionX, xpPositionY) {
+
+      if (scoreToChange > 300) {
+        that.monsterBig._openEyes();
+        that.monsterSmall._openEyes();
+      }
+
       that.progressBar.changeScore(scoreToChange);
       const textSample = new XP(scoreToChange);
       that.addChild(textSample);

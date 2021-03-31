@@ -1,5 +1,5 @@
 import { TimelineLite } from 'gsap/gsap-core';
-import { Container, Sprite } from 'pixi.js';
+import { Container, Graphics, Sprite } from 'pixi.js';
 import Assets from '../core/AssetManager';
 import { random } from '../core/utils';
 
@@ -45,6 +45,11 @@ export default class Character extends Container {
     const monsterEyeLidTop = new Sprite.from('monster-eye-lid-top');
     const monsterEyeLidBottom = new Sprite.from('monster-eye-lid-bottom');
 
+    const eyeLidsMask = new Graphics();
+    this.eyeLidsMask = eyeLidsMask;
+    this.eyeLidsMask.beginFill(0x8bc5ff);
+    this.eyeLidsMask.drawCircle(130, 125, 43);
+
     this.monsterEye = monsterEye;
     this.monsterEye.anchor.set(0.5);
     this.monsterEyeLidTop = monsterEyeLidTop;
@@ -55,12 +60,16 @@ export default class Character extends Container {
 
     this.monsterEyeLidTop.x = 88;
     this.monsterEyeLidTop.y = 84;
+    this.monsterEyeLidTop.mask = this.eyeLidsMask;
 
     this.monsterEyeLidBottom.x = 88;
     this.monsterEyeLidBottom.y = 134;
+    this.monsterEyeLidBottom.mask = this.eyeLidsMask;
 
     this.addChild(monsterBody);
     this.addChild(this.monsterEye);
+    this.addChild(this.eyeLidsMask);
+
     if (!openedEyes) {
       this.addChild(this.monsterEyeLidTop);
       this.addChild(this.monsterEyeLidBottom);
@@ -68,12 +77,17 @@ export default class Character extends Container {
     }
 
     this.on('pointermove', this._moveEyesToCursor);
-
   }
 
+  /**
+   * Activates the periodical blinking of the the monsters
+   * 
+   * @method
+   * @private
+   * @memberof Character
+   */
   _startBlinking() {
     const randomRepeatTime = random(7, 15);
-
     const timeline = new TimelineLite();
 
     timeline.to(this.monsterEyeLidTop, { pixi: { scaleX: 1.065, scaleY: 1.25, positionX: this.monsterEyeLidTop.x - 2 } }, 'close');
@@ -85,6 +99,38 @@ export default class Character extends Container {
     timeline.repeat(-1).repeatDelay(randomRepeatTime);
   }
 
+  /**
+   * Opens the eyes of the monsters when there is a match of 4 or more Tiles
+   * 
+   * @method
+   * @private
+   * @memberof Character
+   */
+  _openEyes() {
+    const timeline = new TimelineLite();
+    const defaultTopLidPosition = this.monsterEyeLidTop.y;
+    const defaultBottomLidPosition = this.monsterEyeLidBottom.y;
+
+    timeline.to(this.monsterEyeLidTop, { pixi: { positionY: this.monsterEyeLidTop.y - 100 } }, 'open');
+    timeline.to(this.monsterEyeLidBottom, {
+      pixi: {
+        positionY: this.monsterEyeLidBottom.y +
+          100
+      }
+    }, 'open');
+
+    timeline.to(this.monsterEyeLidTop, { pixi: { positionY: defaultTopLidPosition } }, 'close');
+    timeline.to(this.monsterEyeLidBottom, { pixi: { positionY: defaultBottomLidPosition } }, 'close');
+  }
+
+  /**
+   * Handles the eye moving of the monsters according to the mouse position
+   * 
+   * @method
+   * @private
+   * @param {Event} e
+   * @memberof Character
+   */
   _moveEyesToCursor(e) {
     const coordinates = e.data.global;
 
@@ -101,6 +147,5 @@ export default class Character extends Container {
 
     this.monsterEye.anchor.set(0.55);
     this.monsterEye.angle = rotationDegrees + 90;
-
   }
 }
