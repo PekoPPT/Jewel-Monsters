@@ -30,7 +30,7 @@ export default class Tiles extends Container {
 
     for (let row = 0; row < 6; row++) {
       for (let column = 0; column < 6; column++) {
-        this.createTile(xPosition, yPosition, row, column);
+        await this.createTile(xPosition, yPosition, row, column);
         xPosition += 100;
       }
 
@@ -116,7 +116,7 @@ export default class Tiles extends Container {
    * @private
    * @memberof Tiles
    */
-  _onDragEnd() {
+  async _onDragEnd() {
     Assets.sounds.stoneHit.play();
     this.alpha = 1;
     this.zIndex = 100;
@@ -151,22 +151,22 @@ export default class Tiles extends Container {
       this.position.x = this.initialPositionX + moveSign * 100;
       this.position.y = this.initialPositionY;
       if (validLeftMove) {
-        gsap.to(otherTile, { pixi: { positionX: otherTile.x + 100 }, duration: 0.3 });
+        await gsap.to(otherTile, { pixi: { positionX: otherTile.x + 100 }, duration: 0.3 });
       } else {
-        gsap.to(otherTile, { pixi: { positionX: otherTile.x - 100 }, duration: 0.3 });
+        await gsap.to(otherTile, { pixi: { positionX: otherTile.x - 100 }, duration: 0.3 });
       }
     } else {
       this.position.x = this.initialPositionX;
       this.position.y = this.initialPositionY + moveSign * 100;
       if (validDownMove) {
-        gsap.to(otherTile, { pixi: { positionY: otherTile.y - 100 }, duration: 0.3 });
+        await gsap.to(otherTile, { pixi: { positionY: otherTile.y - 100 }, duration: 0.3 });
       } else {
-        gsap.to(otherTile, { pixi: { positionY: otherTile.y + 100 }, duration: 0.3 });
+        await gsap.to(otherTile, { pixi: { positionY: otherTile.y + 100 }, duration: 0.3 });
       }
     }
-    setTimeout(() => {
-      console.log(this.parent._debugPl(playground));
-    }, 1000);
+    // setTimeout(() => {
+    console.log(this.parent._debugPl(playground));
+    // }, 1000);
   }
 
 
@@ -226,25 +226,25 @@ export default class Tiles extends Container {
    * @private
    * @memberof Tiles
    */
-  _checkForIdenticalElements() {
+  async _checkForIdenticalElements() {
     const matches = this._getMatches(this.playGround);
 
     // If there are matches, remove them
     if (matches.length > 0) {
 
       // Remove the tiles
-      this._removeTileGroup(matches);
+      await this._removeTileGroup(matches);
 
       // Move the tiles down to fulfill the gaps opened by the removed tiles
 
-      setTimeout(() => {
-        this._moveRowsDown();
-      }, 1000)
+      // setTimeout(() => {
+      await this._moveRowsDown();
+      // }, 1000)
 
       // Add new tiles to the board
-      setTimeout(() => {
-        this._fulFillTheGaps();
-      }, 2000)
+      // setTimeout(() => {
+      await this._fulFillTheGaps();
+      // }, 2000)
 
     } else {
       // If there are no matches available
@@ -337,7 +337,7 @@ export default class Tiles extends Container {
    * @private
    * @memberof Tiles
    */
-  _removeTileGroup(matchedRecords) {
+  async _removeTileGroup(matchedRecords) {
     const tilesToDestroy = [];
 
     // Loop through all the matches and remove tiles
@@ -378,6 +378,9 @@ export default class Tiles extends Container {
 
       this.emit(Tiles.events.TILE_NUMBER_CALCULATIONS_READY, scoreGained, xpPositionX, xpPositionY);
     }
+
+    return Promise.resolve();
+
   }
 
   /**
@@ -387,7 +390,7 @@ export default class Tiles extends Container {
    * @private
    * @memberof Tiles
    */
-  _moveRowsDown() {
+  async _moveRowsDown() {
     for (let row = this.playGround.length - 1; row >= 0; row--) {
       for (let col = this.playGround[row].length - 1; col >= 0; col--) {
         let counter = 0;
@@ -407,6 +410,9 @@ export default class Tiles extends Container {
         }
       }
     }
+
+    return Promise.resolve();
+
   }
 
   /**
