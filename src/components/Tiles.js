@@ -59,13 +59,14 @@ export default class Tiles extends Container {
 
     const tile = new Sprite.from(tileId);
     tile.tileType = tileId;
-    tile.name = String(row) + col;
     tile.zIndex = 100;
     tile.x = xPosition;
     tile.y = -200;
     tile.interactive = true;
     tile.buttonMode = true;
     tile.anchor.set(0.5);
+    tile.row = row;
+    tile.col = col;
 
     gsap.to(tile, { y: row * this.tileHeight + (this.tileHeight / 2) - 60 });
 
@@ -98,11 +99,10 @@ export default class Tiles extends Container {
   _onDragStart(event) {
     this.zIndex = 1000;
 
-    const nameSplit = this.name.split('');
+    this.movedTile = this;
+
     this.data = event.data;
 
-    this.currentTileRow = Number(nameSplit[0]);
-    this.currentTileCol = Number(nameSplit[1]);
     this.initialPositionX = this.position.x;
     this.initialPositionY = this.position.y;
     this.alpha = 0.5;
@@ -118,151 +118,75 @@ export default class Tiles extends Container {
    */
   _onDragEnd() {
     Assets.sounds.stoneHit.play();
-    debugger;
     this.alpha = 1;
+    this.zIndex = 100;
     this.dragging = false;
 
-    const newPosition = this.data.getLocalPosition(this.parent);
-
-    const oldX = this.initialPositionX;
-    const oldY = this.initialPositionY;
-
-    const newX = newPosition.x;
-    const newY = newPosition.y;
-
-    const max = 600;
-    const min = 0;
-
-    const moveThreshold = 60;
-
     const playground = this.parent.playGround;
+    const droppedAt = this.data.getLocalPosition(this.parent);
+    const moveThreshold = 60;
+    const validLeftMove = droppedAt.x < this.initialPositionX - moveThreshold && this.movedTile.col > 0;
+    const validRightMove = droppedAt.x > this.initialPositionX + moveThreshold && this.movedTile.col < playground[0].length - 1;
+    const validDownMove = droppedAt.y > this.initialPositionY + moveThreshold && this.movedTile.row < playground.length - 1;
+    const validUpMove = droppedAt.y < this.initialPositionY - moveThreshold && this.movedTile.row > 0;
 
-    // Exchnage tile with the one on left
-    if (newX < oldX - moveThreshold && this.initialPositionX > min) {
-      // Set the position of the new tile;
-      this.position.x = oldX - 100;
-      this.position.y = oldY;
+    const horizontalMove = validLeftMove || validRightMove;
+    const moveSign = validLeftMove || validUpMove ? -1 : 1;
 
-      // Identify tile over which we are moving
-      const itemToMove = playground[this.currentTileRow][this.currentTileCol - 1];
-
-      // Tile being moved
-      const selectedTile = playground[this.currentTileRow][this.currentTileCol];
-
-      // Remove this when we get rid of the names
-      const tile1 = playground[this.currentTileRow][this.currentTileCol - 1];
-      const tile2 = playground[this.currentTileRow][this.currentTileCol];
-      tile1.name = String(this.currentTileRow) + Number(this.currentTileCol);
-      tile2.name = String(this.currentTileRow) + Number(this.currentTileCol - 1);
-
-      // Switch the tiles
-      playground[this.currentTileRow][this.currentTileCol] = itemToMove;
-      playground[this.currentTileRow][this.currentTileCol - 1] = selectedTile;
-
-      // Play sound & do animation
-      this.parent._moveStoneSound();
-      gsap.to(itemToMove, { pixi: { positionX: itemToMove.x + 100 }, duration: 0.3 });
-
-      this.parent.emit(Tiles.events.MOVE_MADE);
-    }
-
-    // Exchnage tile with the one on right
-    else if (newX > oldX + moveThreshold && this.initialPositionX < max) {
-      this.position.x = oldX + 100;
-      this.position.y = oldY;
-
-      // Identify tile over which we are moving
-      const itemToMove = playground[this.currentTileRow][this.currentTileCol + 1];
-
-      // Tile being moved
-      const selectedTile = playground[this.currentTileRow][this.currentTileCol];
-
-      // Remove this when we get rid of the names
-      const tile1 = playground[this.currentTileRow][this.currentTileCol + 1];
-      const tile2 = playground[this.currentTileRow][this.currentTileCol];
-
-      tile1.name = String(this.currentTileRow) + Number(this.currentTileCol);
-      tile2.name = String(this.currentTileRow) + Number(this.currentTileCol + 1);
-
-      // Switch the tiles
-      playground[this.currentTileRow][this.currentTileCol] = itemToMove;
-      playground[this.currentTileRow][this.currentTileCol + 1] = selectedTile;
-
-      // Play sound & do animation
-      this.parent._moveStoneSound();
-      gsap.to(itemToMove, { pixi: { positionX: itemToMove.x - 100 }, duration: 0.3 });
-
-      // Emit an event on every move.
-      this.parent.emit(Tiles.events.MOVE_MADE);
-    }
-
-    // Exchnage tile with the one below
-    else if (newY > oldY + moveThreshold && this.initialPositionY < max) {
-
-      this.position.x = oldX;
-      this.position.y = oldY + 100;
-
-      // Identify tile over which we are moving
-      const itemToMove = playground[this.currentTileRow + 1][this.currentTileCol];
-
-      // Tile being moved
-      const selectedTile = playground[this.currentTileRow][this.currentTileCol];
-
-      // Remove this when we get rid of the names
-      const tile1 = playground[this.currentTileRow + 1][this.currentTileCol];
-      const tile2 = playground[this.currentTileRow][this.currentTileCol];
-      tile1.name = String(this.currentTileRow) + Number(this.currentTileCol);
-      tile2.name = String(this.currentTileRow + 1) + Number(this.currentTileCol);
-
-      // Switch the tiles
-      playground[this.currentTileRow][this.currentTileCol] = itemToMove;
-      playground[this.currentTileRow + 1][this.currentTileCol] = selectedTile;
-
-      // Play sound & do animation
-      this.parent._moveStoneSound();
-      gsap.to(itemToMove, { pixi: { positionY: itemToMove.y - 100 }, duration: 0.3 });
-
-      // Emit an event on every move.
-      this.parent.emit(Tiles.events.MOVE_MADE);
-
-    }
-
-    // Exchnage tile with the one above
-    else if (newY < oldY - moveThreshold && this.initialPositionY > min) {
-
-      this.position.x = oldX;
-      this.position.y = oldY - 100;
-
-      // Identify tile over which we are moving
-      const itemToMove = playground[this.currentTileRow - 1][this.currentTileCol];
-
-      // Tile being moved
-      const selectedTile = playground[this.currentTileRow][this.currentTileCol];
-
-
-      // Remove this when we get rid of the names
-      const tile1 = playground[this.currentTileRow - 1][this.currentTileCol];
-      const tile2 = playground[this.currentTileRow][this.currentTileCol];
-      tile1.name = String(this.currentTileRow) + Number(this.currentTileCol);
-      tile2.name = String(this.currentTileRow - 1) + Number(this.currentTileCol);
-
-      // Switch the tiles
-      playground[this.currentTileRow][this.currentTileCol] = itemToMove;
-      playground[this.currentTileRow - 1][this.currentTileCol] = selectedTile;
-
-      // Play sound & do animation
-      this.parent._moveStoneSound();
-      gsap.to(itemToMove, { pixi: { positionY: itemToMove.y + 100 }, duration: 0.3 });
-
-      // Emit an event on every move.
-      this.parent.emit(Tiles.events.MOVE_MADE);
-
-    } else {
+    if (!(validLeftMove || validRightMove || validDownMove || validUpMove)) {
       this.position.x = this.initialPositionX;
       this.position.y = this.initialPositionY;
-    }
+      return;
+    };
 
-    this.zIndex = 100;
+    const otherTile = horizontalMove
+      ? playground[this.movedTile.row][this.movedTile.col + moveSign]
+      : playground[this.movedTile.row + moveSign][this.movedTile.col];
+
+    this.parent._switchTiles(otherTile, this.movedTile);
+    this.parent._moveStoneSound();
+    this.parent.emit(Tiles.events.MOVE_MADE);
+
+    if (horizontalMove) {
+      this.position.x = this.initialPositionX + moveSign * 100;
+      this.position.y = this.initialPositionY;
+      if (validLeftMove) {
+        gsap.to(otherTile, { pixi: { positionX: otherTile.x + 100 }, duration: 0.3 });
+      } else {
+        gsap.to(otherTile, { pixi: { positionX: otherTile.x - 100 }, duration: 0.3 });
+      }
+    } else {
+      this.position.x = this.initialPositionX;
+      this.position.y = this.initialPositionY + moveSign * 100;
+      if (validDownMove) {
+        gsap.to(otherTile, { pixi: { positionY: otherTile.y - 100 }, duration: 0.3 });
+      } else {
+        gsap.to(otherTile, { pixi: { positionY: otherTile.y + 100 }, duration: 0.3 });
+      }
+    }
+    setTimeout(() => {
+      console.log(this.parent._debugPl(playground));
+    }, 1000);
+  }
+
+
+  _debugPl(playgoround) {
+    console.log(playgoround);
+    // return playgoround.map((rows) =>
+    //   rows.map((tile) => (tile ? {col: tile.col, row: tile.row} : null))
+    // )
+  }
+
+
+  _switchTiles(a, b) {
+    this.playGround[a.row][a.col] = b;
+    this.playGround[b.row][b.col] = a;
+
+    const { col: aCol, row: aRow } = a;
+    a.row = b.row;
+    a.col = b.col;
+    b.row = aRow;
+    b.col = aCol;
   }
 
   /**
@@ -312,10 +236,15 @@ export default class Tiles extends Container {
       this._removeTileGroup(matches);
 
       // Move the tiles down to fulfill the gaps opened by the removed tiles
-      this._moveRowsDown();
+
+      setTimeout(() => {
+        this._moveRowsDown();
+      }, 1000)
 
       // Add new tiles to the board
-      this._fulFillTheGaps();
+      setTimeout(() => {
+        this._fulFillTheGaps();
+      }, 2000)
 
     } else {
       // If there are no matches available
@@ -416,16 +345,16 @@ export default class Tiles extends Container {
       const tempArr = matchedRecords[row];
       let scoreGained = 0;
 
-      const xpPositionX = (parseInt(tempArr[0].name[1]) + parseInt(tempArr[tempArr.length - 1].name[1])) / 2;
-      const xpPositionY = (parseInt(tempArr[0].name[0]) + parseInt(tempArr[tempArr.length - 1].name[0])) / 2;
+      const xpPositionX = (tempArr[0].col + tempArr[tempArr.length - 1].col) / 2;
+      const xpPositionY = (tempArr[0].row + tempArr[tempArr.length - 1].row) / 2;
 
       for (let col = 0; col < tempArr.length; col++) {
 
         const tile = tempArr[col];
 
         // Remove the tile from the screen
-        const tileRow = tile.name[0];
-        const tileCol = tile.name[1];
+        const tileRow = tile.row;
+        const tileCol = tile.col;
 
         tilesToDestroy.push(tile);
         this.playGround[tileRow][tileCol] = null;
@@ -460,47 +389,24 @@ export default class Tiles extends Container {
    */
   _moveRowsDown() {
     for (let row = this.playGround.length - 1; row >= 0; row--) {
-      for (let y = this.playGround[row].length - 1; y >= 0; y--) {
+      for (let col = this.playGround[row].length - 1; col >= 0; col--) {
         let counter = 0;
 
-        if (this.playGround[row][y] === null) {
-          while (row - counter >= 0 && this.playGround[row][y] === null) {
-            if (this.playGround[row - counter][y] !== null) {
-              this.playGround[row][y] = this.playGround[row - counter][y];
-              this.playGround[row][y].name = String(row) + y;
-              gsap.to(this.playGround[row][y], { y: row * this.tileHeight + (this.tileHeight / 2) - 60 });
-              this.playGround[row - counter][y] = null;
+        if (this.playGround[row][col] === null) {
+          while (row - counter >= 0 && this.playGround[row][col] === null) {
+            if (this.playGround[row - counter][col] !== null) {
+              this.playGround[row][col] = this.playGround[row - counter][col];
+              this.playGround[row][col].row = row;
+              this.playGround[row][col].col = col;
+              this.playGround[row - counter][col] = null;
+
+              gsap.to(this.playGround[row][col], { y: row * this.tileHeight + (this.tileHeight / 2) - 60 });
             }
             counter += 1;
           }
         }
       }
     }
-
-    // setTimeout(() => {
-    this.playGround.forEach((row) => {
-      let namesArr = [];
-      // console.log(row);
-      row.forEach((record) => {
-        if (record !== null) {
-          namesArr.push(record.name);
-        } else {
-          namesArr.push(null);
-        }
-      });
-      namesArr = [];
-    });
-    // }, 1000);
-    // setTimeout(() => {
-
-    //   this.playGround.forEach((row) => {
-    //     let namesArr = [];
-    //     row.forEach((record) => namesArr.push(record.name));
-    //     console.log(namesArr);
-    //     namesArr = [];
-    //   })
-    // }, 1000);
-
   }
 
   /**
@@ -513,10 +419,10 @@ export default class Tiles extends Container {
   async _fulFillTheGaps() {
 
     for (let row = this.playGround.length - 1; row >= 0; row--) {
-      for (let y = 0; y < this.playGround[row].length; y++) {
-        if (this.playGround[row][y] === null) {
-          await this.createTile(y * 100, row * 100, row, y);
-        };
+      for (let col = 0; col < this.playGround[row].length; col++) {
+        if (this.playGround[row][col] === null) {
+          await this.createTile(col * 100, row * 100, row, col);
+        }
       }
     }
     setTimeout(() => {
