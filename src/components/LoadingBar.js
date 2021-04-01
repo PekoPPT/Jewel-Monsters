@@ -1,6 +1,6 @@
 import Assets from '../core/AssetManager';
 import { Container, Sprite, Graphics } from 'pixi.js';
-import { gsap, Timeline } from 'gsap/gsap-core';
+import { gsap } from 'gsap/gsap-core';
 import Character from '../components/Character';
 
 import PixiPlugin from 'gsap/PixiPlugin';
@@ -10,16 +10,11 @@ gsap.registerPlugin(PixiPlugin, MotionPathPlugin);
 
 export default class LoadingBar extends Container {
 
-  constructor({ max = 100, value = 0, width = 500 } = {}) {
+  constructor({ value = 0 } = {}) {
     super();
 
-    this._max = max;
     this._value = value;
-    this._width = width;
-
     this._background = null;
-    this._bar = null;
-    this._badge = null;
     this._rad = Math.PI / 180;
     this.init().then(() => {
       this.set({ value });
@@ -35,7 +30,7 @@ export default class LoadingBar extends Container {
    * @memberof LoadingBar
    */
   set({ value }) {
-    this._value = value;
+    this._value = (value - 50) * 2;
     if (this._tl !== undefined) {
       this._tl.progress(this._value / 100);
     }
@@ -48,7 +43,6 @@ export default class LoadingBar extends Container {
       this._graphicsLeftCircle.angle = 360;
       this._graphicsRightCircle.angle = 180;
     }
-
   }
 
 
@@ -95,8 +89,6 @@ export default class LoadingBar extends Container {
     const background = Sprite.from('loadingBar');
     const loadingBarMaskLeft = Sprite.from('loadingBarMaskLeft');
     const loadingBarMaskRight = Sprite.from('loadingBarMaskRight');
-    const loadingBarGlowStatic = Sprite.from('loadingBarGlow');
-    const loadingBarGlowDynamic = Sprite.from('loadingBarGlow');
 
     this._background = background;
     this._background.anchor.set(0.5);
@@ -112,35 +104,9 @@ export default class LoadingBar extends Container {
     this._loadingBarMaskRight.x = 87;
     this._graphicsRightCircle.mask = this._loadingBarMaskRight;
 
-    this._loadingBarGlowStatic = loadingBarGlowStatic;
-    this._loadingBarGlowStatic.name = 'staticGlow';
-    this._loadingBarGlowStatic.anchor.set(0.5);
-    this._loadingBarGlowStatic.y = 160;
-    this._loadingBarGlowStatic.alpha = 0.7;
-
-    this._loadingBarGlowMoving = loadingBarGlowDynamic;
-    this._loadingBarGlowStatic.name = 'movingGlow';
-    this._loadingBarGlowMoving.anchor.set(0.5);
-    this._loadingBarGlowMoving.x = 160;
-    this._loadingBarGlowMoving.scale.set(0.3);
-
-    const tl = new Timeline();
-    this._tl = tl;
-    this._tl.to(this._loadingBarGlowMoving, {
-      duration: 1,
-      motionPath: {
-        path: [{ x: 0, y: 160 }, { x: -160, y: 0 }, { x: 0, y: -160 }, { x: 160, y: 0 }],
-        type: 'cubic',
-        autoRotate: true,
-        alignOrigin: [0.5, 0.5]
-      }
-    });
-
     this.addChild(this._background);
     this.addChild(this._loadingBarMaskLeft);
     this.addChild(this._loadingBarMaskRight);
-    this.addChild(this._loadingBarGlowStatic);
-    this.addChild(this._loadingBarGlowMoving);
     this.addChild(this._graphicsLeftCircle);
     this.addChild(this._graphicsRightCircle);
   }

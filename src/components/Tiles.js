@@ -1,7 +1,6 @@
-import { Container, Sprite, Texture } from 'pixi.js';
+import { Container, Sprite } from 'pixi.js';
 import { random } from '../core/utils';
 import Assets from '../core/AssetManager';
-
 import { gsap } from 'gsap';
 import PixiPlugin from 'gsap/PixiPlugin';
 
@@ -15,6 +14,7 @@ export default class Tiles extends Container {
     this.tileHeight = 100;
     this.tileWidth = 100;
     this.playGround = [[], [], [], [], [], []];
+
     this.init();
   }
 
@@ -26,35 +26,30 @@ export default class Tiles extends Container {
    */
   async init() {
     let xPosition = 0;
-    let yPosition = 0;
 
     for (let row = 0; row < 6; row++) {
       for (let column = 0; column < 6; column++) {
-        await this.createTile(xPosition, yPosition, row, column);
+        await this.createTile(xPosition, row, column);
         xPosition += 100;
       }
-
       xPosition = 0;
-      yPosition += 100;
     }
 
     setTimeout(() => {
       this._checkForIdenticalElements();
-    }, 2000);
+    }, 1000);
   }
 
   /**
    * Creates a single Tile. Adds it to the Playground array and assigns mouse and click events
    *
-   * @param {*} randomTile - The tyle of the tile that will be initialized
-   * @param {*} xPosition - The X position of the new tile
-   * @param {*} yPosition - THe Y position of the new tile
-   * @param {*} row - The row number in which the element is poistion in the Playgound
-   * @param {*} col - The column number in which the element is poistion in the Playgound
+   * @param {Number} xPosition - The X position of the new tile
+   * @param {Number} row - The row number in which the element is poistion in the Playgound
+   * @param {Number} col - The column number in which the element is poistion in the Playgound
    * @method
    * @memberof Tiles
    */
-  async createTile(xPosition, yPosition, row, col) {
+  async createTile(xPosition, row, col) {
     const tileId = ['snowTile', 'leafTile', 'flameTile', 'potionTile', 'vortexTile', 'skullTile'][random(0, 5)];
 
     const tile = new Sprite.from(tileId);
@@ -91,7 +86,7 @@ export default class Tiles extends Container {
   /**
    * Controls the logic when a tiles is Clicked or Tapped
    *
-   * @param {*} event
+   * @param {Event} event
    * @method
    * @private
    * @memberof Tiles
@@ -125,17 +120,21 @@ export default class Tiles extends Container {
     const playground = this.parent.playGround;
     const droppedAt = this.data.getLocalPosition(this.parent);
     const moveThreshold = 60;
+
+    // Define the valid moves conditions
     const validLeftMove = droppedAt.x < this.initialPositionX - moveThreshold && this.movedTile.col > 0;
     const validRightMove = droppedAt.x > this.initialPositionX + moveThreshold && this.movedTile.col < playground[0].length - 1;
     const validDownMove = droppedAt.y > this.initialPositionY + moveThreshold && this.movedTile.row < playground.length - 1;
     const validUpMove = droppedAt.y < this.initialPositionY - moveThreshold && this.movedTile.row > 0;
 
+    // Determine if the move is horizontal/vertical and to the left/right
     const horizontalMove = validLeftMove || validRightMove;
     const moveSign = validLeftMove || validUpMove ? -1 : 1;
 
     if (!(validLeftMove || validRightMove || validDownMove || validUpMove)) {
       this.position.x = this.initialPositionX;
       this.position.y = this.initialPositionY;
+
       return;
     };
 
@@ -164,29 +163,24 @@ export default class Tiles extends Container {
         await gsap.to(otherTile, { pixi: { positionY: otherTile.y + 100 }, duration: 0.3 });
       }
     }
-    // setTimeout(() => {
-    console.log(this.parent._debugPl(playground));
-    // }, 1000);
   }
 
+  /**
+   *
+   *
+   * @param {Sprite} tileA - The tile we drop the selected tile on
+   * @param {Sprite} tileB - The initially selected tile
+   * @memberof Tiles
+   */
+  _switchTiles(tileA, tileB) {
+    this.playGround[tileA.row][tileA.col] = tileB;
+    this.playGround[tileB.row][tileB.col] = tileA;
 
-  _debugPl(playgoround) {
-    console.log(playgoround);
-    // return playgoround.map((rows) =>
-    //   rows.map((tile) => (tile ? {col: tile.col, row: tile.row} : null))
-    // )
-  }
-
-
-  _switchTiles(a, b) {
-    this.playGround[a.row][a.col] = b;
-    this.playGround[b.row][b.col] = a;
-
-    const { col: aCol, row: aRow } = a;
-    a.row = b.row;
-    a.col = b.col;
-    b.row = aRow;
-    b.col = aCol;
+    const { col: aCol, row: aRow } = tileA;
+    tileA.row = tileB.row;
+    tileA.col = tileB.col;
+    tileB.row = aRow;
+    tileB.col = aCol;
   }
 
   /**
@@ -217,7 +211,6 @@ export default class Tiles extends Container {
     Assets.sounds.scrapingStone.play();
   }
 
-
   /**
    * Check for identical elements in the playgound.
    * Handles the remove of the matched Tiles and the generation of the new ones.
@@ -236,15 +229,10 @@ export default class Tiles extends Container {
       await this._removeTileGroup(matches);
 
       // Move the tiles down to fulfill the gaps opened by the removed tiles
-
-      // setTimeout(() => {
       await this._moveRowsDown();
-      // }, 1000)
 
       // Add new tiles to the board
-      // setTimeout(() => {
       await this._fulFillTheGaps();
-      // }, 2000)
 
     } else {
       // If there are no matches available
@@ -365,7 +353,6 @@ export default class Tiles extends Container {
         });
       }
 
-
       if (tempArr.length === 3) {
         scoreGained = 300;
       } else if (tempArr.length === 4) {
@@ -427,13 +414,11 @@ export default class Tiles extends Container {
     for (let row = this.playGround.length - 1; row >= 0; row--) {
       for (let col = 0; col < this.playGround[row].length; col++) {
         if (this.playGround[row][col] === null) {
-          await this.createTile(col * 100, row * 100, row, col);
+          await this.createTile(col * 100, row, col);
         }
       }
     }
-    setTimeout(() => {
-      this._checkForIdenticalElements();
-    }, 1000);
+    this._checkForIdenticalElements();
   }
 
   /**
