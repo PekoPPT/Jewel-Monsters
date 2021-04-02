@@ -1,30 +1,34 @@
-import { Graphics, Sprite, Text, filters } from 'pixi.js';
-import Scene from './Scene';
 import { gsap, Sine } from 'gsap';
+import { Sprite } from 'pixi.js';
 import Character from '../components/Character';
 import Moves from '../components/Moves';
 import ProgressBar from '../components/ProgressBar';
 import Tiles from '../components/Tiles';
 import XP from '../components/XP';
 import Assets from '../core/AssetManager';
-import random from '../core/utils';
+import Scene from './Scene';
+
+import {
+  Shake, Camera
+} from 'pixi-game-camera/pixi-game-camera.js';
 
 export default class Play extends Scene {
   constructor() {
     super();
-    this.movesToPlay = 20;
     this.winScreenVisible = false;
     this.loseScreenVisible = false;
 
   }
   async onCreated() {
+    this.movesToPlay = 20;
+
     await this._addMonsters();
     await this._addMovesPanel();
     await this._addProgressBar();
     await this._addTiles();
 
-    this._addBackgroundSounds();
     // play the backgroudn music
+    this._addBackgroundSounds();
   }
 
   /**
@@ -65,6 +69,15 @@ export default class Play extends Scene {
     // Updates the score in the progress bar
     // Adds 
     this.tiles.on('calculations_ready', function calculations_ready(scoreToChange, xpPositionX, xpPositionY) {
+      // Opens Monsters' eyes on move
+      that.monsterBig._openEyes();
+      that.monsterSmall._openEyes();
+
+      // Shakes the screen when a mathch of 4 or more tiles is made
+      if (scoreToChange > 300) {
+        that._addStageShake();
+      }
+
       that.progressBar.changeScore(scoreToChange);
       const textSample = new XP(scoreToChange);
       that.addChild(textSample);
@@ -385,7 +398,6 @@ export default class Play extends Scene {
     this.onCreated();
   }
 
-
   /**
    * Periodically plays a "creature in the cave" sound.
    * Loops
@@ -395,10 +407,25 @@ export default class Play extends Scene {
    * @memberof Play
    */
   _addBackgroundSounds() {
-    Assets.sounds.horrorcaveambience.play().loop(true);
+    Assets.sounds.horrorcaveambience.play();
 
     setInterval(() => {
       Assets.sounds.createureInTheCave.play();
     }, 30000);
   }
+
+  /**
+   * Shakes the stage when called
+   * 
+   * @method
+   * @private
+   * @memberof Play
+   */
+  _addStageShake() {
+    const camera = new Camera();
+    const mildShake = new Shake(this.parent.parent.parent, 30, 300);
+
+    camera.effect(mildShake);
+  }
+
 }
