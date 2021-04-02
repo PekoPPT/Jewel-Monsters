@@ -8,6 +8,8 @@ export default class Character extends Container {
     super();
     this.init(openedEyes);
     this.interactive = true;
+    this.eyesOpened = false;
+
   }
 
   async init(openedEyes) {
@@ -111,16 +113,22 @@ export default class Character extends Container {
     const defaultTopLidPosition = this.monsterEyeLidTop.y;
     const defaultBottomLidPosition = this.monsterEyeLidBottom.y;
 
-    timeline.to(this.monsterEyeLidTop, { pixi: { positionY: this.monsterEyeLidTop.y - 100 } }, 'open');
-    timeline.to(this.monsterEyeLidBottom, {
-      pixi: {
-        positionY: this.monsterEyeLidBottom.y +
-          100
-      }
-    }, 'open');
+    if (!this.eyesOpened) {
+      this.eyesOpened = true;
 
-    timeline.to(this.monsterEyeLidTop, { pixi: { positionY: defaultTopLidPosition } }, 'close');
-    timeline.to(this.monsterEyeLidBottom, { pixi: { positionY: defaultBottomLidPosition } }, 'close');
+      timeline.to(this.monsterEyeLidTop, { pixi: { positionY: defaultTopLidPosition - 100 } }, 'open');
+      timeline.to(this.monsterEyeLidBottom, {
+        pixi: {
+          positionY: defaultBottomLidPosition +
+            100
+        }
+      }, 'open');
+
+      timeline.to(this.monsterEyeLidTop, { pixi: { positionY: defaultTopLidPosition } }, 'close');
+      timeline.to(this.monsterEyeLidBottom, { pixi: { positionY: defaultBottomLidPosition } }, 'close').then(() => {
+        this.eyesOpened = false;
+      });
+    }
   }
 
   /**
