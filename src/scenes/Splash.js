@@ -47,12 +47,12 @@ export default class Splash extends Scene {
       nineDigit: Assets.images['images/9'],
       xSymbol: Assets.images['images/X'],
       pSymbol: Assets.images['images/P'],
-      snowTile: Assets.images['symbol-1'],
-      leafTile: Assets.images['symbol-2'],
-      flameTile: Assets.images['symbol-3'],
-      potionTile: Assets.images['symbol-4'],
-      vortexTile: Assets.images['symbol-5'],
-      skullTile: Assets.images['symbol-6'],
+      snowTileSpriteSheet: Assets.images.snow,
+      leafTileSpriteSheet: Assets.images.leaf,
+      flameTileSpriteSheet: Assets.images.flame,
+      potionTileSpriteSheet: Assets.images.potion,
+      vortexTileSpriteSheet: Assets.images.vortex,
+      skullTileSpriteSheet: Assets.images.skull,
     };
     const sounds = {
       stoneHit: Assets.sounds['sounds/stone-hitting-big-stone'],

@@ -1,4 +1,4 @@
-import { Container, Sprite } from 'pixi.js';
+import { AnimatedSprite, Container } from 'pixi.js';
 import { random } from '../core/utils';
 import Assets from '../core/AssetManager';
 import { gsap } from 'gsap';
@@ -50,9 +50,13 @@ export default class Tiles extends Container {
    * @memberof Tiles
    */
   async createTile(xPosition, row, col) {
-    const tileId = ['snowTile', 'leafTile', 'flameTile', 'potionTile', 'vortexTile', 'skullTile'][random(0, 5)];
 
-    const tile = new Sprite.from(tileId);
+    const tileId = ['snowTileSpriteSheet', 'leafTileSpriteSheet', 'flameTileSpriteSheet', 'potionTileSpriteSheet', 'vortexTileSpriteSheet', 'skullTileSpriteSheet'][random(0, 5)];
+
+    const tile = new AnimatedSprite(Assets.spritesheets[tileId].animations.rotate);
+    tile.animationSpeed = 0.2;
+    tile.loop = false;
+
     tile.tileType = tileId;
     tile.zIndex = 100;
     tile.x = xPosition;
@@ -347,9 +351,10 @@ export default class Tiles extends Container {
         tilesToDestroy.push(tile);
         this.playGround[tileRow][tileCol] = null;
 
-        tilesToDestroy.forEach((tile) => {
-          this.parent.removeChild(tile);
-          gsap.to(tile, { pixi: { autoAlpha: 0 } });
+        this.parent.removeChild(tile);
+        tilesToDestroy.forEach(async (tile) => {
+          tile.play();
+          gsap.to(tile, { pixi: { autoAlpha: 0 }, duration: 1.5 });
         });
       }
 
@@ -366,8 +371,11 @@ export default class Tiles extends Container {
       this.emit(Tiles.events.TILE_NUMBER_CALCULATIONS_READY, scoreGained, xpPositionX, xpPositionY);
     }
 
-    return Promise.resolve();
-
+    return new Promise(resolve => {
+      setTimeout(() => {
+        resolve('resolved');
+      }, 200);
+    });
   }
 
   /**
