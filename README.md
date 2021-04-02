@@ -23,9 +23,14 @@ Based on the pre-defined specifications the following requirements are met:
 * There are animations in the tiles' moving
 * The user has to reach 5000 xp in 20 moves
 * The Monsters that appear in the game are moving up and down
+* The Monsters' eyes are following the mouse cursor
+* The Monsters' eyes are opening wide when a line is made
+* The Monsters are winking from time to time
+* The stage shakes when a line of four or more tiles is made
+* The destuction of the tiles is implemented with Spritesheet animation
 * The score's progressbar is filled based in a way that corresponds to the gained XP points
 * The player's moves are counted in the area above the playground
-* The game has background sounds, sounds when the tiles are droped, while the tiles are moving and when the player win or lose the game
+* The game has [Howler.js](https://howlerjs.com/) powered background sounds, sounds when the tiles are droped, while the tiles are moving and when the player win or lose the game
 * The code is well commented using jsDocs
 * Runs on 60fps
 * The project has [Cypress](https://www.cypress.io/) tests implemeted
@@ -44,10 +49,5 @@ Based on the pre-defined specifications the following requirements are met:
 | 1. `npm start` | Make sure that you have a running project by starting the `npm start` commad |
 | 2. `npm test` | Run the Cypress tests |
 
-## Future improvements
-* Add separate Win a Lose scenese
-* Rewrite the Tile moves implementation
-* Rewrite the Tile moves implementation in a way this functionality can be tested with Cypress
-* Make the game more catchy by creating additional animations for the Monsters, Fire and other elements 
 
 🟡🟡🟡
