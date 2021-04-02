@@ -8,6 +8,10 @@ import XP from '../components/XP';
 import Assets from '../core/AssetManager';
 import Scene from './Scene';
 
+import {
+  Shake, Camera
+} from 'pixi-game-camera/pixi-game-camera.js';
+
 export default class Play extends Scene {
   constructor() {
     super();
@@ -64,10 +68,13 @@ export default class Play extends Scene {
     // Updates the score in the progress bar
     // Adds 
     this.tiles.on('calculations_ready', function calculations_ready(scoreToChange, xpPositionX, xpPositionY) {
+      // Opens Monsters' eyes on move
+      that.monsterBig._openEyes();
+      that.monsterSmall._openEyes();
 
+      // Shakes the screen when a mathch of 4 or more tiles is made
       if (scoreToChange > 300) {
-        that.monsterBig._openEyes();
-        that.monsterSmall._openEyes();
+        that._addStageShake();
       }
 
       that.progressBar.changeScore(scoreToChange);
@@ -390,7 +397,6 @@ export default class Play extends Scene {
     this.onCreated();
   }
 
-
   /**
    * Periodically plays a "creature in the cave" sound.
    * Loops
@@ -406,4 +412,19 @@ export default class Play extends Scene {
       Assets.sounds.createureInTheCave.play();
     }, 30000);
   }
+
+  /**
+   * Shakes the stage when called
+   * 
+   * @method
+   * @private
+   * @memberof Play
+   */
+  _addStageShake() {
+    const camera = new Camera();
+    const mildShake = new Shake(this.parent.parent.parent, 30, 300);
+
+    camera.effect(mildShake);
+  }
+
 }
