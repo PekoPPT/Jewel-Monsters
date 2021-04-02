@@ -15,19 +15,20 @@ import {
 export default class Play extends Scene {
   constructor() {
     super();
-    this.movesToPlay = 20;
     this.winScreenVisible = false;
     this.loseScreenVisible = false;
 
   }
   async onCreated() {
+    this.movesToPlay = 20;
+
     await this._addMonsters();
     await this._addMovesPanel();
     await this._addProgressBar();
     await this._addTiles();
 
-    // this._addBackgroundSounds();
     // play the backgroudn music
+    this._addBackgroundSounds();
   }
 
   /**
